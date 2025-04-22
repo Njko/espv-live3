@@ -13,21 +13,12 @@ enum class ESVPProfile {
 }
 
 /**
- * Data class representing a vote in an ESVP session
- */
-@Serializable
-data class Vote(
-    val userId: String,
-    val profile: ESVPProfile
-)
-
-/**
  * Data class representing an ESVP session
  */
 @Serializable
 data class ESVPSession(
     val id: String,
-    var name: String,
+    val name: String,
     val pinCode: String,
     val votes: MutableMap<String, ESVPProfile> = mutableMapOf()
 )
@@ -55,11 +46,6 @@ data class JoinSessionRequest(
 @Serializable
 data class JoinSessionResponse(
     val id: String,
-    val name: String
-)
-
-@Serializable
-data class UpdateSessionNameRequest(
     val name: String
 )
 

@@ -48,13 +48,8 @@ fun Application.configureRouting() {
 
             // Update session name
             put("/sessions/{id}/name") {
-                val id = call.parameters["id"] ?: return@put call.respond(HttpStatusCode.BadRequest, "Missing session ID")
-                val request = call.receive<UpdateSessionNameRequest>()
-
-                val updatedSession = sessionRepository.updateSessionName(id, request.name)
-                    ?: return@put call.respond(HttpStatusCode.NotFound, "Session not found")
-
-                call.respond(HttpStatusCode.OK)
+                // Session names cannot be modified after creation
+                call.respond(HttpStatusCode.BadRequest, "Session names cannot be modified after creation")
             }
 
             // Vote in a session
@@ -62,7 +57,7 @@ fun Application.configureRouting() {
                 val id = call.parameters["id"] ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing session ID")
                 val request = call.receive<VoteRequest>()
 
-                val updatedSession = sessionRepository.addVote(id, request.userId, request.profile)
+                sessionRepository.addVote(id, request.userId, request.profile)
                     ?: return@post call.respond(HttpStatusCode.NotFound, "Session not found")
 
                 call.respond(HttpStatusCode.OK)

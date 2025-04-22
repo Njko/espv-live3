@@ -39,15 +39,6 @@ class ESVPSessionRepository {
     }
 
     /**
-     * Updates the name of a session
-     */
-    fun updateSessionName(id: String, name: String): ESVPSession? {
-        val session = sessions[id] ?: return null
-        session.name = name
-        return session
-    }
-
-    /**
      * Adds a vote to a session
      */
     fun addVote(sessionId: String, userId: String, profile: ESVPProfile): ESVPSession? {
@@ -61,7 +52,7 @@ class ESVPSessionRepository {
      */
     fun getSessionResults(id: String): Map<ESVPProfile, Int>? {
         val session = sessions[id] ?: return null
-        return ESVPProfile.values().associateWith { profile ->
+        return ESVPProfile.entries.associateWith { profile ->
             session.votes.count { it.value == profile }
         }
     }

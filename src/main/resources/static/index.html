@@ -9,11 +9,11 @@
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-center mb-8">ESVP Voting</h1>
-        
+
         <div id="createSessionSection" class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-xl font-semibold mb-4">Create a New Session</h2>
             <div class="flex">
-                <input type="text" id="sessionName" placeholder="Session Name" 
+                <input type="text" id="sessionName" placeholder="Session Name"
                        class="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <button id="createSessionBtn" 
                         class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -25,7 +25,7 @@
                 <p id="pinCode" class="text-xl font-bold text-center my-2"></p>
             </div>
         </div>
-        
+
         <div id="joinSessionSection" class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-xl font-semibold mb-4">Join a Session</h2>
             <div class="flex">
@@ -37,11 +37,11 @@
                 </button>
             </div>
         </div>
-        
+
         <div id="votingSection" class="bg-white p-6 rounded-lg shadow-md mb-6 hidden">
             <h2 class="text-xl font-semibold mb-4">Vote in Session: <span id="sessionNameDisplay"></span></h2>
             <p class="mb-4">How do you feel about this workshop?</p>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <button data-profile="EXPLORER" class="vote-btn bg-blue-100 p-4 rounded-lg hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <h3 class="font-bold">Explorer</h3>
@@ -60,45 +60,42 @@
                     <p class="text-sm">Forced to attend, would rather be elsewhere</p>
                 </button>
             </div>
-            
+
             <div class="flex justify-between">
                 <button id="showResultsBtn" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500">
                     Show Results
                 </button>
-                <button id="changeNameBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                    Change Session Name
-                </button>
             </div>
         </div>
-        
+
         <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
             <h2 class="text-xl font-semibold mb-4">Results for: <span id="resultSessionName"></span></h2>
             <div class="space-y-4">
                 <div class="flex items-center">
                     <div class="w-24">Explorer:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
-                        <div id="explorerBar" class="bg-blue-500 h-5 rounded-full" style="width: 0%"></div>
+                        <div id="explorerBar" class="bg-blue-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="explorerCount" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
                     <div class="w-24">Shopper:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
-                        <div id="shopperBar" class="bg-green-500 h-5 rounded-full" style="width: 0%"></div>
+                        <div id="shopperBar" class="bg-green-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="shopperCount" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
                     <div class="w-24">Vacationer:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
-                        <div id="vacationerBar" class="bg-yellow-500 h-5 rounded-full" style="width: 0%"></div>
+                        <div id="vacationerBar" class="bg-yellow-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="vacationerCount" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
                     <div class="w-24">Prisoner:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
-                        <div id="prisonerBar" class="bg-red-500 h-5 rounded-full" style="width: 0%"></div>
+                        <div id="prisonerBar" class="bg-red-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="prisonerCount" class="ml-2 w-10 text-right">0</div>
                 </div>
@@ -108,45 +105,42 @@
             </button>
         </div>
     </div>
-    
+
     <script>
         // State management
         let currentSession = null;
         let userId = null;
-        
+
         // Generate a random user ID
         function generateUserId() {
             return 'user_' + Math.random().toString(36).substr(2, 9);
         }
-        
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             userId = generateUserId();
-            
+
             // Create session
             document.getElementById('createSessionBtn').addEventListener('click', createSession);
-            
+
             // Join session
             document.getElementById('joinSessionBtn').addEventListener('click', joinSession);
-            
+
             // Vote buttons
             document.querySelectorAll('.vote-btn').forEach(btn => {
                 btn.addEventListener('click', () => vote(btn.dataset.profile));
             });
-            
+
             // Show results
             document.getElementById('showResultsBtn').addEventListener('click', showResults);
-            
-            // Change session name
-            document.getElementById('changeNameBtn').addEventListener('click', changeSessionName);
-            
+
             // Back to voting
             document.getElementById('backToVotingBtn').addEventListener('click', () => {
                 document.getElementById('votingSection').classList.remove('hidden');
                 document.getElementById('resultsSection').classList.add('hidden');
             });
         });
-        
+
         // Create a new session
         async function createSession() {
             const sessionName = document.getElementById('sessionName').value.trim();
@@ -154,7 +148,7 @@
                 alert('Please enter a session name');
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/sessions', {
                     method: 'POST',
@@ -163,18 +157,18 @@
                     },
                     body: JSON.stringify({ name: sessionName })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     currentSession = {
                         id: data.id,
                         name: data.name
                     };
-                    
+
                     // Show pin code
                     document.getElementById('pinCode').textContent = data.pinCode;
                     document.getElementById('createSessionResult').classList.remove('hidden');
-                    
+
                     // Show voting section
                     document.getElementById('sessionNameDisplay').textContent = data.name;
                     document.getElementById('votingSection').classList.remove('hidden');
@@ -186,7 +180,7 @@
                 alert('Error creating session');
             }
         }
-        
+
         // Join a session
         async function joinSession() {
             const pinCode = document.getElementById('pinCodeInput').value.trim();
@@ -194,7 +188,7 @@
                 alert('Please enter a pin code');
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/sessions/join', {
                     method: 'POST',
@@ -203,14 +197,14 @@
                     },
                     body: JSON.stringify({ pinCode })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     currentSession = {
                         id: data.id,
                         name: data.name
                     };
-                    
+
                     // Show voting section
                     document.getElementById('sessionNameDisplay').textContent = data.name;
                     document.getElementById('votingSection').classList.remove('hidden');
@@ -222,14 +216,14 @@
                 alert('Error joining session');
             }
         }
-        
+
         // Vote in the current session
         async function vote(profile) {
             if (!currentSession) {
                 alert('No active session');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`/api/sessions/${currentSession.id}/votes`, {
                     method: 'POST',
@@ -238,7 +232,7 @@
                     },
                     body: JSON.stringify({ userId, profile })
                 });
-                
+
                 if (response.ok) {
                     alert('Vote recorded!');
                 } else {
@@ -249,31 +243,31 @@
                 alert('Error recording vote');
             }
         }
-        
+
         // Show results for the current session
         async function showResults() {
             if (!currentSession) {
                 alert('No active session');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`/api/sessions/${currentSession.id}/results`);
-                
+
                 if (response.ok) {
                     const data = await response.json();
-                    
+
                     // Calculate total votes
                     const totalVotes = Object.values(data.results).reduce((sum, count) => sum + count, 0);
-                    
+
                     // Update result bars and counts
                     document.getElementById('resultSessionName').textContent = data.name;
-                    
+
                     updateResultBar('explorer', data.results.EXPLORER || 0, totalVotes);
                     updateResultBar('shopper', data.results.SHOPPER || 0, totalVotes);
                     updateResultBar('vacationer', data.results.VACATIONER || 0, totalVotes);
                     updateResultBar('prisoner', data.results.PRISONER || 0, totalVotes);
-                    
+
                     // Show results section
                     document.getElementById('votingSection').classList.add('hidden');
                     document.getElementById('resultsSection').classList.remove('hidden');
@@ -285,47 +279,14 @@
                 alert('Error getting results');
             }
         }
-        
+
         // Update a result bar
         function updateResultBar(profile, count, total) {
             const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
             document.getElementById(`${profile}Bar`).style.width = `${percentage}%`;
             document.getElementById(`${profile}Count`).textContent = count;
         }
-        
-        // Change the session name
-        async function changeSessionName() {
-            if (!currentSession) {
-                alert('No active session');
-                return;
-            }
-            
-            const newName = prompt('Enter new session name:', currentSession.name);
-            if (!newName || newName === currentSession.name) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/sessions/${currentSession.id}/name`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name: newName })
-                });
-                
-                if (response.ok) {
-                    currentSession.name = newName;
-                    document.getElementById('sessionNameDisplay').textContent = newName;
-                    alert('Session name updated');
-                } else {
-                    alert('Failed to update session name');
-                }
-            } catch (error) {
-                console.error('Error updating session name:', error);
-                alert('Error updating session name');
-            }
-        }
+
     </script>
 </body>
 </html>
