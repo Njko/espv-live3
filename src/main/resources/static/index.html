@@ -40,6 +40,7 @@
 
         <div id="votingSection" class="bg-white p-6 rounded-lg shadow-md mb-6 hidden">
             <h2 class="text-xl font-semibold mb-4">Vote in Session: <span id="sessionNameDisplay"></span></h2>
+            <p class="mb-2">Session PIN: <span id="votingPinCode" class="font-bold"></span></p>
             <p class="mb-4">How do you feel about this workshop?</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -62,14 +63,18 @@
             </div>
 
             <div class="flex justify-between">
-                <button id="showResultsBtn" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <button id="showResultsBtn" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 creator-only">
                     Show Results
+                </button>
+                <button id="backToSelectionBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Back to Selection
                 </button>
             </div>
         </div>
 
         <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
             <h2 class="text-xl font-semibold mb-4">Results for: <span id="resultSessionName"></span></h2>
+            <p class="mb-2">Session PIN: <span id="resultsPinCode" class="font-bold"></span></p>
             <div class="space-y-4">
                 <div class="flex items-center">
                     <div class="w-24">Explorer:</div>
@@ -100,9 +105,17 @@
                     <div id="prisonerCount" class="ml-2 w-10 text-right">0</div>
                 </div>
             </div>
-            <button id="backToVotingBtn" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                Back
-            </button>
+            <div class="flex justify-between mt-4">
+                <button id="refreshResultsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Refresh Results
+                </button>
+                <button id="backToVotingBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 creator-only">
+                    Back to Voting
+                </button>
+                <button id="backToSelectionBtn2" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Back to Selection
+                </button>
+            </div>
         </div>
     </div>
 
@@ -110,6 +123,7 @@
         // State management
         let currentSession = null;
         let userId = null;
+        let isSessionCreator = false;
 
         // Generate a random user ID
         function generateUserId() {
@@ -134,11 +148,25 @@
             // Show results
             document.getElementById('showResultsBtn').addEventListener('click', showResults);
 
+            // Refresh results
+            document.getElementById('refreshResultsBtn').addEventListener('click', showResults);
+
             // Back to voting
             document.getElementById('backToVotingBtn').addEventListener('click', () => {
+                // Ensure PIN code is displayed in voting section
+                if (currentSession && currentSession.pinCode) {
+                    document.getElementById('votingPinCode').textContent = currentSession.pinCode;
+                }
                 document.getElementById('votingSection').classList.remove('hidden');
                 document.getElementById('resultsSection').classList.add('hidden');
             });
+
+            // Back to session selection
+            document.getElementById('backToSelectionBtn').addEventListener('click', backToSessionSelection);
+            document.getElementById('backToSelectionBtn2').addEventListener('click', backToSessionSelection);
+
+            // Apply initial UI state
+            updateUIBasedOnRole();
         });
 
         // Create a new session
@@ -162,16 +190,27 @@
                     const data = await response.json();
                     currentSession = {
                         id: data.id,
-                        name: data.name
+                        name: data.name,
+                        pinCode: data.pinCode
                     };
+                    isSessionCreator = true;
 
                     // Show pin code
                     document.getElementById('pinCode').textContent = data.pinCode;
+                    document.getElementById('votingPinCode').textContent = data.pinCode;
+                    document.getElementById('resultsPinCode').textContent = data.pinCode;
                     document.getElementById('createSessionResult').classList.remove('hidden');
 
-                    // Show voting section
-                    document.getElementById('sessionNameDisplay').textContent = data.name;
-                    document.getElementById('votingSection').classList.remove('hidden');
+                    // Hide create and join sections
+                    document.getElementById('createSessionSection').classList.add('hidden');
+                    document.getElementById('joinSessionSection').classList.add('hidden');
+
+                    // Show results section directly for creator
+                    document.getElementById('resultSessionName').textContent = data.name;
+                    showResults();
+
+                    // Update UI based on role
+                    updateUIBasedOnRole();
                 } else {
                     alert('Failed to create session');
                 }
@@ -202,18 +241,60 @@
                     const data = await response.json();
                     currentSession = {
                         id: data.id,
-                        name: data.name
+                        name: data.name,
+                        pinCode: pinCode
                     };
+                    isSessionCreator = false;
+
+                    // Display pin code
+                    document.getElementById('votingPinCode').textContent = pinCode;
+                    document.getElementById('resultsPinCode').textContent = pinCode;
+
+                    // Hide create and join sections
+                    document.getElementById('createSessionSection').classList.add('hidden');
+                    document.getElementById('joinSessionSection').classList.add('hidden');
 
                     // Show voting section
                     document.getElementById('sessionNameDisplay').textContent = data.name;
                     document.getElementById('votingSection').classList.remove('hidden');
+
+                    // Update UI based on role
+                    updateUIBasedOnRole();
                 } else {
                     alert('Session not found');
                 }
             } catch (error) {
                 console.error('Error joining session:', error);
                 alert('Error joining session');
+            }
+        }
+
+        // Back to session selection
+        function backToSessionSelection() {
+            // Reset state
+            currentSession = null;
+            isSessionCreator = false;
+
+            // Hide all sections except create and join
+            document.getElementById('votingSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('createSessionResult').classList.add('hidden');
+
+            // Show create and join sections
+            document.getElementById('createSessionSection').classList.remove('hidden');
+            document.getElementById('joinSessionSection').classList.remove('hidden');
+        }
+
+        // Update UI elements based on user role
+        function updateUIBasedOnRole() {
+            const creatorOnlyElements = document.querySelectorAll('.creator-only');
+
+            if (isSessionCreator) {
+                // Show elements for creators
+                creatorOnlyElements.forEach(el => el.classList.remove('hidden'));
+            } else {
+                // Hide elements for joiners
+                creatorOnlyElements.forEach(el => el.classList.add('hidden'));
             }
         }
 
@@ -234,7 +315,21 @@
                 });
 
                 if (response.ok) {
+                    // Highlight the selected vote button
+                    document.querySelectorAll('.vote-btn').forEach(btn => {
+                        if (btn.dataset.profile === profile) {
+                            btn.classList.add('ring-2', 'ring-offset-2');
+                        } else {
+                            btn.classList.remove('ring-2', 'ring-offset-2');
+                        }
+                    });
+
                     alert('Vote recorded!');
+
+                    // If user is a creator, show results automatically
+                    if (isSessionCreator) {
+                        showResults();
+                    }
                 } else {
                     alert('Failed to record vote');
                 }
@@ -262,6 +357,11 @@
 
                     // Update result bars and counts
                     document.getElementById('resultSessionName').textContent = data.name;
+
+                    // Ensure PIN code is displayed
+                    if (currentSession.pinCode) {
+                        document.getElementById('resultsPinCode').textContent = currentSession.pinCode;
+                    }
 
                     updateResultBar('explorer', data.results.EXPLORER || 0, totalVotes);
                     updateResultBar('shopper', data.results.SHOPPER || 0, totalVotes);
