@@ -1,37 +1,36 @@
-val kotlin_version: String by project
-val logback_version: String by project
-
 plugins {
-    kotlin("jvm") version "2.1.10"
-    id("io.ktor.plugin") version "3.1.2"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
+    // Base plugin for basic build functionality
+    base
 }
 
 group = "fr.nicolaslinard.esvp3"
 version = "0.0.1"
 
-application {
-    mainClass = "io.ktor.server.netty.EngineMain"
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+// Define Node.js related tasks
+tasks.register<Exec>("npmInstall") {
+    description = "Install Node.js dependencies"
+    commandLine("npm", "install")
 }
 
-repositories {
-    mavenCentral()
+tasks.register<Exec>("npmStart") {
+    description = "Start the Node.js server"
+    commandLine("node", "server.js")
+    dependsOn("npmInstall")
 }
 
-dependencies {
-    implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-server-netty")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-config-yaml")
-    implementation("io.ktor:ktor-server-status-pages")
-    implementation("io.ktor:ktor-server-resources")
-    implementation("io.ktor:ktor-server-host-common")
+// Make the build task depend on npmInstall
+tasks.named("build") {
+    dependsOn("npmInstall")
+}
 
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+// Make the run task start the Node.js server
+tasks.register("run") {
+    dependsOn("npmStart")
+}
+
+// Clean task to remove node_modules
+tasks.named("clean") {
+    doLast {
+        delete("node_modules")
+    }
 }

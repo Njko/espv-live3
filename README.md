@@ -1,43 +1,57 @@
 # ESVP Live 3
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
-
-Here are some useful links to get you started:
-
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+This project is an ESVP (Explorer, Shopper, Vacationer, Prisoner) voting application implemented with Node.js and Express.
 
 ## Features
 
 Here's a list of features included in this project:
 
-| Name                                                                   | Description                                                                        |
-| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-| [Koin](https://start.ktor.io/p/koin)                                   | Provides dependency injection                                                      |
+| Feature                | Description                                                                        |
+| -----------------------|------------------------------------------------------------------------------------ |
+| Express.js             | Fast, unopinionated, minimalist web framework for Node.js                          |
+| RESTful API            | API endpoints for creating sessions, joining sessions, voting, and viewing results |
+| Static File Serving    | Serves the frontend HTML, CSS, and JavaScript files                                |
+| In-memory Repository   | Stores session data in memory using JavaScript Maps                                |
+
+## API Endpoints
+
+| Endpoint                      | Method | Description                                |
+| ------------------------------|--------|--------------------------------------------|
+| `/api/sessions`               | POST   | Create a new session                       |
+| `/api/sessions/join`          | POST   | Join a session with a pin code             |
+| `/api/sessions/{id}/votes`    | POST   | Vote in a session                          |
+| `/api/sessions/{id}/results`  | GET    | Get session results                        |
+| `/json/kotlinx-serialization` | GET    | Simple endpoint that returns {"hello": "world"} |
 
 ## Building & Running
 
-To build or run the project, use one of the following tasks:
+### Using Gradle
 
-| Task                          | Description                                                          |
-| -------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
+To build or run the project using Gradle, use one of the following tasks:
+
+| Task                | Description                      |
+| --------------------|----------------------------------|
+| `./gradlew build`   | Install Node.js dependencies     |
+| `./gradlew run`     | Start the Node.js server         |
+| `./gradlew clean`   | Clean the project                |
+
+### Using npm directly
+
+You can also use npm commands directly:
+
+| Command           | Description                      |
+| ------------------|----------------------------------|
+| `npm install`     | Install dependencies             |
+| `npm start`       | Start the server                 |
 
 If the server starts successfully, you'll see the following output:
 
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+Server is running on port 8080
 ```
 
+## Technologies Used
+
+- Node.js
+- Express.js
+- UUID for generating unique identifiers
