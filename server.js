@@ -60,17 +60,17 @@ class ESVPSessionRepository {
     getSessionResults(id) {
         const session = this.sessions.get(id);
         if (!session) return null;
-        
+
         const results = {};
         results[ESVPProfile.EXPLORER] = 0;
         results[ESVPProfile.SHOPPER] = 0;
         results[ESVPProfile.VACATIONER] = 0;
         results[ESVPProfile.PRISONER] = 0;
-        
+
         Object.values(session.votes).forEach(profile => {
             results[profile]++;
         });
-        
+
         return results;
     }
 
@@ -94,7 +94,7 @@ app.post('/api/sessions', (req, res) => {
     if (!name) {
         return res.status(400).json({ error: 'Session name is required' });
     }
-    
+
     const session = sessionRepository.createSession(name);
     res.json({
         id: session.id,
@@ -108,12 +108,12 @@ app.post('/api/sessions/join', (req, res) => {
     if (!pinCode) {
         return res.status(400).json({ error: 'Pin code is required' });
     }
-    
+
     const session = sessionRepository.findSessionByPinCode(pinCode);
     if (!session) {
         return res.status(404).json({ error: 'Session not found' });
     }
-    
+
     res.json({
         id: session.id,
         name: session.name
@@ -128,40 +128,40 @@ app.put('/api/sessions/:id/name', (req, res) => {
 app.post('/api/sessions/:id/votes', (req, res) => {
     const { id } = req.params;
     const { userId, profile } = req.body;
-    
+
     if (!id) {
         return res.status(400).json({ error: 'Missing session ID' });
     }
-    
+
     if (!userId || !profile) {
         return res.status(400).json({ error: 'User ID and profile are required' });
     }
-    
+
     const session = sessionRepository.addVote(id, userId, profile);
     if (!session) {
         return res.status(404).json({ error: 'Session not found' });
     }
-    
+
     res.status(200).send();
 });
 
 app.get('/api/sessions/:id/results', (req, res) => {
     const { id } = req.params;
-    
+
     if (!id) {
         return res.status(400).json({ error: 'Missing session ID' });
     }
-    
+
     const session = sessionRepository.findSessionById(id);
     if (!session) {
         return res.status(404).json({ error: 'Session not found' });
     }
-    
+
     const results = sessionRepository.getSessionResults(id);
     if (!results) {
         return res.status(404).json({ error: 'Session not found' });
     }
-    
+
     res.json({
         id: session.id,
         name: session.name,
@@ -180,6 +180,6 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT} and accessible from all interfaces`);
 });
