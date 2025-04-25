@@ -12,16 +12,18 @@ const HTTP_PORT = process.env.HTTP_PORT || 80;
 const HTTPS_PORT = process.env.HTTPS_PORT || 443;
 
 // SSL Certificate options
-let httpsOptions = {};
+let httpsOptions = {
+    key: null,
+    cert: null
+};
 try {
     // Try to read SSL certificates if they exist
-    httpsOptions = {
-        key: fs.readFileSync(path.join(__dirname, 'ssl', 'private-key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'ssl', 'certificate.pem'))
-    };
+    httpsOptions.key = fs.readFileSync(path.join(__dirname, 'ssl', 'private-key.pem'));
+    httpsOptions.cert = fs.readFileSync(path.join(__dirname, 'ssl', 'certificate.pem'));
 } catch (error) {
-    console.warn('SSL certificates not found. HTTPS server will not start.');
+    console.warn('SSL certificates not found or invalid. HTTPS server will not start.');
     console.warn('See documentation for instructions on generating SSL certificates.');
+    console.warn('Continuing with HTTP server only.');
 }
 
 // Middleware
