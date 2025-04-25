@@ -251,14 +251,112 @@ If your Raspberry Pi is struggling with performance:
    top
    ```
 
+## Setting Up HTTPS
+
+The application now supports HTTPS in addition to HTTP. Here's how to set it up:
+
+### 1. Generate SSL Certificates
+
+#### Option 1: Using Let's Encrypt (Recommended for Public Domains)
+
+If you have a domain name pointing to your Raspberry Pi, you can use Let's Encrypt to get free, trusted SSL certificates:
+
+1. Install Certbot:
+   ```bash
+   sudo apt install certbot
+   ```
+
+2. Generate certificates (replace yourdomain.com with your actual domain):
+   ```bash
+   sudo certbot certonly --standalone --preferred-challenges http -d yourdomain.com
+   ```
+
+3. Copy the certificates to your application's ssl directory:
+   ```bash
+   sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem /home/pi/esvp-live-3/ssl/private-key.pem
+   sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /home/pi/esvp-live-3/ssl/certificate.pem
+   sudo chown pi:pi /home/pi/esvp-live-3/ssl/*.pem
+   ```
+
+4. Set up auto-renewal:
+   ```bash
+   sudo crontab -e
+   ```
+   Add this line:
+   ```
+   0 3 * * * certbot renew --quiet && cp /etc/letsencrypt/live/yourdomain.com/privkey.pem /home/pi/esvp-live-3/ssl/private-key.pem && cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /home/pi/esvp-live-3/ssl/certificate.pem && systemctl restart esvp-live
+   ```
+
+#### Option 2: Self-Signed Certificates (For Testing or Internal Use)
+
+For testing or internal use, you can generate self-signed certificates:
+
+1. Create the ssl directory if it doesn't exist:
+   ```bash
+   mkdir -p /home/pi/esvp-live-3/ssl
+   ```
+
+2. Generate a self-signed certificate:
+   ```bash
+   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /home/pi/esvp-live-3/ssl/private-key.pem -out /home/pi/esvp-live-3/ssl/certificate.pem
+   ```
+   Follow the prompts to enter your information.
+
+### 2. Configure Port Forwarding for HTTPS
+
+In addition to the HTTP port forwarding, you'll need to set up port forwarding for HTTPS:
+
+1. Log in to your router's admin panel
+2. Add a new port forwarding rule:
+   - External port: 443 (standard HTTPS port)
+   - Internal port: 8443 (default HTTPS port for the application)
+   - Internal IP address: Your Raspberry Pi's IP address
+   - Protocol: TCP
+
+### 3. Update Your Firewall (if enabled)
+
+If you're using a firewall, allow the HTTPS port:
+
+```bash
+sudo ufw allow 8443/tcp
+```
+
+### 4. Testing HTTPS
+
+1. Restart your application to apply the SSL certificate changes:
+   ```bash
+   # If using PM2
+   pm2 restart esvp-live
+
+   # If using systemd
+   sudo systemctl restart esvp-live
+   ```
+
+2. Test locally:
+   ```
+   https://localhost:8443
+   ```
+
+3. Test from another device on your network:
+   ```
+   https://[raspberry-pi-ip]:8443
+   ```
+
+4. Test from the internet:
+   ```
+   https://[your-domain-or-public-ip]:443
+   ```
+
+> Note: If using self-signed certificates, browsers will show a security warning. This is normal for self-signed certificates. For production use, Let's Encrypt certificates are recommended.
+
 ## Security Considerations
 
 For a production environment, consider:
 
-1. Setting up HTTPS using Let's Encrypt
-2. Implementing authentication for admin functions
-3. Configuring a firewall on your Raspberry Pi
-4. Regularly updating your system and dependencies
+1. Implementing authentication for admin functions
+2. Configuring a firewall on your Raspberry Pi
+3. Regularly updating your system and dependencies
+4. Setting up HTTP to HTTPS redirection for better security
 
 ## Conclusion
 

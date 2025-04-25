@@ -2,10 +2,27 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 8080;
+const HTTP_PORT = process.env.HTTP_PORT || 8080;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
+
+// SSL Certificate options
+let httpsOptions = {};
+try {
+    // Try to read SSL certificates if they exist
+    httpsOptions = {
+        key: fs.readFileSync(path.join(__dirname, 'ssl', 'private-key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'ssl', 'certificate.pem'))
+    };
+} catch (error) {
+    console.warn('SSL certificates not found. HTTPS server will not start.');
+    console.warn('See documentation for instructions on generating SSL certificates.');
+}
 
 // Middleware
 app.use(bodyParser.json());
@@ -179,7 +196,18 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/main/resources/static/index.html'));
 });
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT} and accessible from all interfaces`);
+// Start HTTP server
+const httpServer = http.createServer(app);
+httpServer.listen(HTTP_PORT, '0.0.0.0', () => {
+    console.log(`HTTP server is running on port ${HTTP_PORT} and accessible from all interfaces`);
 });
+
+// Start HTTPS server if certificates are available
+if (httpsOptions.key && httpsOptions.cert) {
+    const httpsServer = https.createServer(httpsOptions, app);
+    httpsServer.listen(HTTPS_PORT, '0.0.0.0', () => {
+        console.log(`HTTPS server is running on port ${HTTPS_PORT} and accessible from all interfaces`);
+    });
+} else {
+    console.log('HTTPS server not started due to missing SSL certificates');
+}
