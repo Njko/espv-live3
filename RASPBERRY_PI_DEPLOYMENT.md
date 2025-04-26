@@ -165,7 +165,9 @@ PM2 is a process manager for Node.js applications that keeps your app running an
    ExecStart=/usr/bin/node server.js
    Restart=always
    User=pi
-   Environment=NODE_ENV=production
+   Environment="NODE_ENV=production"
+   Environment="HTTP_PORT=8080"
+   Environment="HTTPS_PORT=8443"
 
    [Install]
    WantedBy=multi-user.target
@@ -349,6 +351,100 @@ sudo ufw allow 8443/tcp
 
 > Note: If using self-signed certificates, browsers will show a security warning. This is normal for self-signed certificates. For production use, Let's Encrypt certificates are recommended.
 
+## Setting Up Nginx for Port Redirection
+
+Instead of exposing the application directly on ports 8080 and 8443, you can use Nginx as a reverse proxy to redirect traffic from the standard HTTP (80) and HTTPS (443) ports to your application ports. This provides better security and flexibility.
+
+### 1. Install Nginx
+
+```bash
+sudo apt update
+sudo apt install -y nginx
+```
+
+### 2. Configure Nginx for Port Redirection
+
+1. Create a new Nginx configuration file:
+   ```bash
+   sudo nano /etc/nginx/sites-available/esvp-live
+   ```
+
+2. Add the following configuration:
+   ```nginx
+   server {
+       listen 80;
+       server_name _;  # Catch all hostnames
+
+       # Redirect all HTTP traffic to HTTPS
+       return 301 https://$host$request_uri;
+   }
+
+   server {
+       listen 443 ssl;
+       server_name _;  # Catch all hostnames
+
+       # SSL certificate paths - use the same ones your application uses
+       ssl_certificate /home/pi/esvp-live-3/ssl/certificate.pem;
+       ssl_certificate_key /home/pi/esvp-live-3/ssl/private-key.pem;
+
+       # SSL settings
+       ssl_protocols TLSv1.2 TLSv1.3;
+       ssl_prefer_server_ciphers on;
+       ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+
+       location / {
+           proxy_pass https://localhost:8443;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+3. Enable the site by creating a symbolic link:
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/esvp-live /etc/nginx/sites-enabled/
+   ```
+
+4. Test the Nginx configuration:
+   ```bash
+   sudo nginx -t
+   ```
+
+5. If the test is successful, restart Nginx:
+   ```bash
+   sudo systemctl restart nginx
+   ```
+
+### 3. Update Firewall Rules
+
+If you're using a firewall, allow the standard HTTP and HTTPS ports:
+
+```bash
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+```
+
+### 4. Update Port Forwarding on Your Router
+
+Now you should update your router's port forwarding to direct traffic to ports 80 and 443 on your Raspberry Pi, instead of 8080 and 8443:
+
+1. Log in to your router's admin panel
+2. Update or create port forwarding rules:
+   - External port: 80 → Internal port: 80 (Raspberry Pi)
+   - External port: 443 → Internal port: 443 (Raspberry Pi)
+
+### 5. Testing the Nginx Configuration
+
+After setting up Nginx, you can access your application using standard ports:
+
+- HTTP: `http://[your-domain-or-ip]` (no port needed as 80 is the default) - This will automatically redirect to HTTPS
+- HTTPS: `https://[your-domain-or-ip]` (no port needed as 443 is the default)
+
+This makes your URLs cleaner, more user-friendly, and ensures all traffic is encrypted for better security.
+
 ## Security Considerations
 
 For a production environment, consider:
@@ -356,7 +452,75 @@ For a production environment, consider:
 1. Implementing authentication for admin functions
 2. Configuring a firewall on your Raspberry Pi
 3. Regularly updating your system and dependencies
-4. Setting up HTTP to HTTPS redirection for better security
+4. Ensuring the HTTP to HTTPS redirection is working properly (already configured in the Nginx setup)
+
+## Managing Services on Raspberry Pi
+
+If you've set up the application using systemd and nginx as described in this guide, you'll need to know how to start, stop, restart, and check the status of these services.
+
+### Managing the ESVP Live 3 Service
+
+The ESVP Live 3 application runs as a systemd service named `esvp-live3.service`. Here are the commands to manage it:
+
+```bash
+# Start the service
+sudo systemctl start esvp-live3.service
+
+# Stop the service
+sudo systemctl stop esvp-live3.service
+
+# Restart the service
+sudo systemctl restart esvp-live3.service
+
+# Check the status of the service
+sudo systemctl status esvp-live3.service
+
+# Enable the service to start on boot
+sudo systemctl enable esvp-live3.service
+
+# Disable the service from starting on boot
+sudo systemctl disable esvp-live3.service
+```
+
+### Managing Nginx
+
+If you're using Nginx as a reverse proxy for your application, here are the commands to manage it:
+
+```bash
+# Start Nginx
+sudo systemctl start nginx
+
+# Stop Nginx
+sudo systemctl stop nginx
+
+# Restart Nginx
+sudo systemctl restart nginx
+
+# Reload Nginx configuration without stopping the service
+sudo systemctl reload nginx
+
+# Check the status of Nginx
+sudo systemctl status nginx
+
+# Enable Nginx to start on boot
+sudo systemctl enable nginx
+
+# Disable Nginx from starting on boot
+sudo systemctl disable nginx
+```
+
+### Viewing Service Logs
+
+To view the logs for these services, you can use the following commands:
+
+```bash
+# View ESVP Live 3 service logs
+sudo journalctl -u esvp-live3.service
+
+# View Nginx logs
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+```
 
 ## Conclusion
 
