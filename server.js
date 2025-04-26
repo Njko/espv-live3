@@ -8,8 +8,8 @@ const fs = require('fs');
 
 // Create Express app
 const app = express();
-const HTTP_PORT = process.env.HTTP_PORT || 80;
-const HTTPS_PORT = process.env.HTTPS_PORT || 443;
+const HTTP_PORT = process.env.HTTP_PORT || 8080;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 
 // SSL Certificate options
 let httpsOptions = {
@@ -193,7 +193,17 @@ app.get('/json/kotlinx-serialization', (req, res) => {
     res.json({ hello: 'world' });
 });
 
-// Default route for SPA
+// Route for ESVP Live application
+app.get('/esvp-live', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/main/resources/static/esvp-live.html'));
+});
+
+// Route for homepage
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/main/resources/static/home.html'));
+});
+
+// Default route for SPA - fallback for other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/main/resources/static/index.html'));
 });
