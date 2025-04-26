@@ -3,58 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to ESVP Live</title>
+    <title>Agile Retrospective Tools - ESVP Live & Mood Swing</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8">Welcome to ESVP Live</h1>
-
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">About ESVP</h2>
-            <p class="mb-4">
-                ESVP (Explorer, Shopper, Vacationer, Prisoner) is a retrospective technique used to gauge 
-                participants' attitudes toward a meeting or workshop.
-            </p>
-            <p class="mb-4">
-                Participants anonymously identify themselves as one of the following:
-            </p>
-            <ul class="list-disc pl-6 mb-4">
-                <li><strong>Explorer</strong> - Excited to learn and discover new things</li>
-                <li><strong>Shopper</strong> - Looking for specific value to take away</li>
-                <li><strong>Vacationer</strong> - Happy to be away from regular work</li>
-                <li><strong>Prisoner</strong> - Forced to attend, would rather be elsewhere</li>
-            </ul>
-            <p class="mb-4">
-                This tool helps facilitators understand the mindset of participants and adjust accordingly.
-            </p>
+        <h1 class="text-3xl font-bold text-center mb-8">Agile Retrospective Tools</h1>
+        <div class="text-center mb-8">
+            <p class="text-lg">Discover powerful tools to enhance your retrospectives and team meetings</p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Get Started with ESVP Live</h2>
-            <p class="mb-4">
-                Use the ESVP Live tool to gauge participants' attitudes toward your meeting or workshop.
-            </p>
-            <a href="/esvp-live" class="block w-full bg-blue-500 text-white text-center px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Go to ESVP Live Tool
-            </a>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-md h-full flex flex-col">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-100 p-3 rounded-full mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-blue-700">ESVP Live</h2>
+                    </div>
+                    <p class="mb-4">
+                        <strong>ESVP Live</strong> is an interactive tool that helps facilitators understand participants' attitudes toward a meeting or workshop in real-time.
+                    </p>
+                    <p class="mb-4">
+                        Participants anonymously identify themselves as one of the following:
+                    </p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li><strong>Explorer</strong> - Excited to learn and discover new things</li>
+                        <li><strong>Shopper</strong> - Looking for specific value to take away</li>
+                        <li><strong>Vacationer</strong> - Happy to be away from regular work</li>
+                        <li><strong>Prisoner</strong> - Forced to attend, would rather be elsewhere</li>
+                    </ul>
+                    <p class="mb-6">
+                        This tool provides immediate visual feedback, allowing facilitators to adjust their approach based on the group's mindset. Perfect for starting retrospectives or workshops to gauge engagement levels.
+                    </p>
+                </div>
+                <div class="mt-auto">
+                    <a href="/esvp-live" class="block w-full bg-blue-500 text-white text-center px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Launch ESVP Live
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md h-full flex flex-col">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-100 p-3 rounded-full mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-green-700">Mood Swing</h2>
+                    </div>
+                    <p class="mb-4">
+                        <strong>Mood Swing</strong> is a dynamic tool that tracks participants' moods throughout a session, meeting, or over longer periods.
+                    </p>
+                    <p class="mb-4">
+                        Participants rate their mood on a scale from 1 to 10:
+                    </p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li><strong>1</strong> - Not good at all (frustrated, disengaged)</li>
+                        <li><strong>5</strong> - Neutral</li>
+                        <li><strong>10</strong> - Extremely positive (impressed, energized)</li>
+                    </ul>
+                    <p class="mb-6">
+                        Mood Swing visualizes mood trends in real-time, helping facilitators identify when energy drops or rises. It's ideal for checking emotional temperature at different points during retrospectives or tracking team morale over time.
+                    </p>
+                </div>
+                <div class="mt-auto">
+                    <a href="/mood-swing" class="block w-full bg-green-500 text-white text-center px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        Launch Mood Swing
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4">Try Mood Swing</h2>
-            <p class="mb-4">
-                Mood Swing allows participants to rate their mood on a scale from 1 to 10, where:
-            </p>
-            <ul class="list-disc pl-6 mb-4">
-                <li><strong>1</strong> - Not good at all</li>
-                <li><strong>10</strong> - Impressed</li>
-            </ul>
-            <p class="mb-4">
-                This tool helps facilitators understand the overall mood of participants during a session.
-            </p>
-            <a href="/mood-swing" class="block w-full bg-green-500 text-white text-center px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
-                Go to Mood Swing Tool
-            </a>
+            <h2 class="text-xl font-semibold mb-4">Why Use These Tools?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">Increase Engagement</h3>
+                    <p>Interactive visualizations make retrospectives more engaging and encourage honest feedback from all participants.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">Data-Driven Facilitation</h3>
+                    <p>Make informed decisions about how to adjust your facilitation approach based on real-time feedback.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">Track Progress</h3>
+                    <p>Monitor how team sentiment evolves over time to measure the effectiveness of your improvement initiatives.</p>
+                </div>
+            </div>
         </div>
     </div>
 </body>
