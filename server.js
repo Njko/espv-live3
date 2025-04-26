@@ -104,8 +104,81 @@ class ESVPSessionRepository {
     }
 }
 
-// Create repository instance
+// MoodSessionRepository for mood-swing application
+class MoodSessionRepository {
+    constructor() {
+        this.sessions = new Map();
+        this.sessionsByPinCode = new Map();
+    }
+
+    createSession(name) {
+        const id = uuidv4();
+        const pinCode = this.generatePinCode();
+        const session = {
+            id,
+            name,
+            pinCode,
+            votes: {}
+        };
+        this.sessions.set(id, session);
+        this.sessionsByPinCode.set(pinCode, id);
+        return session;
+    }
+
+    findSessionById(id) {
+        return this.sessions.get(id) || null;
+    }
+
+    findSessionByPinCode(pinCode) {
+        const sessionId = this.sessionsByPinCode.get(pinCode);
+        if (!sessionId) return null;
+        return this.sessions.get(sessionId);
+    }
+
+    addVote(sessionId, userId, level) {
+        const session = this.sessions.get(sessionId);
+        if (!session) return null;
+        session.votes[userId] = level;
+        return session;
+    }
+
+    getSessionResults(id) {
+        const session = this.sessions.get(id);
+        if (!session) return null;
+
+        const results = {};
+        // Initialize all levels with 0
+        for (let i = 1; i <= 10; i++) {
+            results[i] = 0;
+        }
+
+        // Count votes for each level
+        Object.values(session.votes).forEach(level => {
+            results[level]++;
+        });
+
+        return results;
+    }
+
+    // Generate a unique pin code in the format "ABC-123" (3 letters, hyphen, 3 numbers)
+    generatePinCode() {
+        let pinCode;
+        do {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let firstPart = '';
+            for (let i = 0; i < 3; i++) {
+                firstPart += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            const secondPart = Math.floor(Math.random() * 900) + 100;
+            pinCode = `${firstPart}-${secondPart}`;
+        } while (this.sessionsByPinCode.has(pinCode));
+        return pinCode;
+    }
+}
+
+// Create repository instances
 const sessionRepository = new ESVPSessionRepository();
+const moodSessionRepository = new MoodSessionRepository();
 
 // API Routes
 app.post('/api/sessions', (req, res) => {
@@ -188,6 +261,88 @@ app.get('/api/sessions/:id/results', (req, res) => {
     });
 });
 
+// Mood Swing API Routes
+app.post('/api/mood-swing/sessions', (req, res) => {
+    const { name } = req.body;
+    if (!name) {
+        return res.status(400).json({ error: 'Session name is required' });
+    }
+
+    const session = moodSessionRepository.createSession(name);
+    res.json({
+        id: session.id,
+        name: session.name,
+        pinCode: session.pinCode
+    });
+});
+
+app.post('/api/mood-swing/sessions/join', (req, res) => {
+    const { pinCode } = req.body;
+    if (!pinCode) {
+        return res.status(400).json({ error: 'Pin code is required' });
+    }
+
+    const session = moodSessionRepository.findSessionByPinCode(pinCode);
+    if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+
+    res.json({
+        id: session.id,
+        name: session.name
+    });
+});
+
+app.post('/api/mood-swing/sessions/:id/votes', (req, res) => {
+    const { id } = req.params;
+    const { userId, level } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ error: 'Missing session ID' });
+    }
+
+    if (!userId || !level) {
+        return res.status(400).json({ error: 'User ID and level are required' });
+    }
+
+    // Ensure level is a number between 1 and 10
+    const moodLevel = parseInt(level);
+    if (isNaN(moodLevel) || moodLevel < 1 || moodLevel > 10) {
+        return res.status(400).json({ error: 'Level must be a number between 1 and 10' });
+    }
+
+    const session = moodSessionRepository.addVote(id, userId, moodLevel);
+    if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+
+    res.status(200).send();
+});
+
+app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ error: 'Missing session ID' });
+    }
+
+    const session = moodSessionRepository.findSessionById(id);
+    if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+
+    const results = moodSessionRepository.getSessionResults(id);
+    if (!results) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+
+    res.json({
+        id: session.id,
+        name: session.name,
+        results
+    });
+});
+
 // Add the /json/kotlinx-serialization endpoint for compatibility
 app.get('/json/kotlinx-serialization', (req, res) => {
     res.json({ hello: 'world' });
@@ -196,6 +351,11 @@ app.get('/json/kotlinx-serialization', (req, res) => {
 // Route for ESVP Live application
 app.get('/esvp-live', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/main/resources/static/esvp-live.html'));
+});
+
+// Route for Mood Swing application
+app.get('/mood-swing', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/main/resources/static/mood-swing.html'));
 });
 
 // Route for homepage
