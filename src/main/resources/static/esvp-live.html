@@ -27,7 +27,14 @@
             </div>
             <div id="createSessionResult" class="mt-4 hidden">
                 <p data-i18n="general.sessionCreated">Session created! Share this pin code with participants:</p>
-                <p id="pinCode" class="text-xl font-bold text-center my-2"></p>
+                <div class="flex items-center justify-center my-2">
+                    <p id="pinCode" class="text-xl font-bold mr-2"></p>
+                    <button id="copyPinBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-gray-400" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -45,7 +52,15 @@
 
         <div id="votingSection" class="bg-white p-6 rounded-lg shadow-md mb-6 hidden">
             <h2 class="text-xl font-semibold mb-4"><span data-i18n="esvp.voteInSession">Vote in Session:</span> <span id="sessionNameDisplay"></span></h2>
-            <p class="mb-2"><span data-i18n="esvp.sessionPin">Session PIN:</span> <span id="votingPinCode" class="font-bold"></span></p>
+            <p class="mb-2 flex items-center">
+                <span data-i18n="esvp.sessionPin">Session PIN:</span> 
+                <span id="votingPinCode" class="font-bold mx-1"></span>
+                <button id="copyVotingPinBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 ml-1" title="Copy to clipboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                </button>
+            </p>
             <p class="mb-4" data-i18n="esvp.howDoYouFeel">How do you feel about this workshop?</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -79,7 +94,15 @@
 
         <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
             <h2 class="text-xl font-semibold mb-4"><span data-i18n="esvp.resultsFor">Results for:</span> <span id="resultSessionName"></span></h2>
-            <p class="mb-2"><span data-i18n="esvp.sessionPin">Session PIN:</span> <span id="resultsPinCode" class="font-bold"></span></p>
+            <p class="mb-2 flex items-center">
+                <span data-i18n="esvp.sessionPin">Session PIN:</span> 
+                <span id="resultsPinCode" class="font-bold mx-1"></span>
+                <button id="copyResultsPinBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 ml-1" title="Copy to clipboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                </button>
+            </p>
             <div class="space-y-4">
                 <div class="flex items-center">
                     <div class="w-24" data-i18n="esvp.explorerLabel">Explorer:</div>
@@ -150,6 +173,44 @@
             return 'user_' + Math.random().toString(36).substr(2, 9);
         }
 
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            // Create a temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+
+            // Select and copy the text
+            textarea.select();
+            document.execCommand('copy');
+
+            // Remove the temporary element
+            document.body.removeChild(textarea);
+
+            // Show a brief visual feedback (could be enhanced with a toast notification)
+            showCopyFeedback();
+        }
+
+        // Show a brief visual feedback when text is copied
+        function showCopyFeedback() {
+            // Create a toast notification
+            const toast = document.createElement('div');
+            toast.textContent = i18n.t('general.copied') || 'Copied to clipboard!';
+            toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-300';
+            document.body.appendChild(toast);
+
+            // Remove the toast after 2 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 2000);
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             userId = generateUserId();
@@ -189,6 +250,22 @@
             // Back to session selection
             document.getElementById('backToSelectionBtn').addEventListener('click', backToSessionSelection);
             document.getElementById('backToSelectionBtn2').addEventListener('click', backToSessionSelection);
+
+            // Copy PIN code buttons
+            document.getElementById('copyPinBtn').addEventListener('click', () => {
+                const pinCode = document.getElementById('pinCode').textContent;
+                copyToClipboard(pinCode);
+            });
+
+            document.getElementById('copyVotingPinBtn').addEventListener('click', () => {
+                const pinCode = document.getElementById('votingPinCode').textContent;
+                copyToClipboard(pinCode);
+            });
+
+            document.getElementById('copyResultsPinBtn').addEventListener('click', () => {
+                const pinCode = document.getElementById('resultsPinCode').textContent;
+                copyToClipboard(pinCode);
+            });
 
             // Apply initial UI state
             updateUIBasedOnRole();
