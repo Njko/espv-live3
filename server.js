@@ -5,6 +5,8 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 const fs = require('fs');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 // Create Express app
 const app = express();
@@ -29,6 +31,31 @@ try {
 // Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'src/main/resources/static')));
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'ESVP Live & Mood Swing API',
+      version: '1.0.0',
+      description: 'API documentation for ESVP Live and Mood Swing applications',
+      contact: {
+        name: 'API Support'
+      }
+    },
+    servers: [
+      {
+        url: 'http://nicolaslinard.dev',
+        description: 'Services'
+      }
+    ]
+  },
+  apis: ['./server.js'], // Path to the API docs
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // ESVPProfile enum equivalent
 const ESVPProfile = {
@@ -181,6 +208,94 @@ const sessionRepository = new ESVPSessionRepository();
 const moodSessionRepository = new MoodSessionRepository();
 
 // API Routes
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Session:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *         - pinCode
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated UUID of the session
+ *         name:
+ *           type: string
+ *           description: The name of the session
+ *         pinCode:
+ *           type: string
+ *           description: The unique pin code for joining the session
+ *     Vote:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - profile
+ *       properties:
+ *         userId:
+ *           type: string
+ *           description: The ID of the user submitting the vote
+ *         profile:
+ *           type: string
+ *           enum: [EXPLORER, SHOPPER, VACATIONER, PRISONER]
+ *           description: The ESVP profile selected by the user
+ *     SessionResults:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The session ID
+ *         name:
+ *           type: string
+ *           description: The name of the session
+ *         results:
+ *           type: object
+ *           properties:
+ *             EXPLORER:
+ *               type: integer
+ *               description: Number of Explorer votes
+ *             SHOPPER:
+ *               type: integer
+ *               description: Number of Shopper votes
+ *             VACATIONER:
+ *               type: integer
+ *               description: Number of Vacationer votes
+ *             PRISONER:
+ *               type: integer
+ *               description: Number of Prisoner votes
+ */
+
+/**
+ * @swagger
+ * /api/sessions:
+ *   post:
+ *     summary: Create a new ESVP session
+ *     tags: [ESVP]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the session
+ *     responses:
+ *       200:
+ *         description: The session was successfully created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Session'
+ *       400:
+ *         description: Missing required fields
+ */
 app.post('/api/sessions', (req, res) => {
     const { name } = req.body;
     if (!name) {
@@ -195,6 +310,43 @@ app.post('/api/sessions', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /api/sessions/join:
+ *   post:
+ *     summary: Join an existing ESVP session using a pin code
+ *     tags: [ESVP]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - pinCode
+ *             properties:
+ *               pinCode:
+ *                 type: string
+ *                 description: The pin code of the session to join
+ *     responses:
+ *       200:
+ *         description: Successfully joined the session
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: The session ID
+ *                 name:
+ *                   type: string
+ *                   description: The name of the session
+ *       400:
+ *         description: Missing pin code
+ *       404:
+ *         description: Session not found
+ */
 app.post('/api/sessions/join', (req, res) => {
     const { pinCode } = req.body;
     if (!pinCode) {
@@ -212,11 +364,67 @@ app.post('/api/sessions/join', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /api/sessions/{id}/name:
+ *   put:
+ *     summary: Update the name of an ESVP session (currently not supported)
+ *     tags: [ESVP]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The session ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The new name for the session
+ *     responses:
+ *       400:
+ *         description: Session names cannot be modified after creation
+ */
 app.put('/api/sessions/:id/name', (req, res) => {
     // Session names cannot be modified after creation
     res.status(400).json({ error: 'Session names cannot be modified after creation' });
 });
 
+/**
+ * @swagger
+ * /api/sessions/{id}/votes:
+ *   post:
+ *     summary: Submit a vote for an ESVP session
+ *     tags: [ESVP]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The session ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Vote'
+ *     responses:
+ *       200:
+ *         description: Vote successfully submitted
+ *       400:
+ *         description: Missing required fields
+ *       404:
+ *         description: Session not found
+ */
 app.post('/api/sessions/:id/votes', (req, res) => {
     const { id } = req.params;
     const { userId, profile } = req.body;
@@ -237,6 +445,31 @@ app.post('/api/sessions/:id/votes', (req, res) => {
     res.status(200).send();
 });
 
+/**
+ * @swagger
+ * /api/sessions/{id}/results:
+ *   get:
+ *     summary: Get the results of an ESVP session
+ *     tags: [ESVP]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The session ID
+ *     responses:
+ *       200:
+ *         description: Session results retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SessionResults'
+ *       400:
+ *         description: Missing session ID
+ *       404:
+ *         description: Session not found
+ */
 app.get('/api/sessions/:id/results', (req, res) => {
     const { id } = req.params;
 
@@ -262,6 +495,113 @@ app.get('/api/sessions/:id/results', (req, res) => {
 });
 
 // Mood Swing API Routes
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     MoodSession:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *         - pinCode
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated UUID of the mood session
+ *         name:
+ *           type: string
+ *           description: The name of the mood session
+ *         pinCode:
+ *           type: string
+ *           description: The unique pin code for joining the mood session
+ *     MoodVote:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - level
+ *       properties:
+ *         userId:
+ *           type: string
+ *           description: The ID of the user submitting the vote
+ *         level:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 10
+ *           description: The mood level (1-10) selected by the user
+ *     MoodSessionResults:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The session ID
+ *         name:
+ *           type: string
+ *           description: The name of the session
+ *         results:
+ *           type: object
+ *           properties:
+ *             1:
+ *               type: integer
+ *               description: Number of votes for level 1
+ *             2:
+ *               type: integer
+ *               description: Number of votes for level 2
+ *             3:
+ *               type: integer
+ *               description: Number of votes for level 3
+ *             4:
+ *               type: integer
+ *               description: Number of votes for level 4
+ *             5:
+ *               type: integer
+ *               description: Number of votes for level 5
+ *             6:
+ *               type: integer
+ *               description: Number of votes for level 6
+ *             7:
+ *               type: integer
+ *               description: Number of votes for level 7
+ *             8:
+ *               type: integer
+ *               description: Number of votes for level 8
+ *             9:
+ *               type: integer
+ *               description: Number of votes for level 9
+ *             10:
+ *               type: integer
+ *               description: Number of votes for level 10
+ */
+
+/**
+ * @swagger
+ * /api/mood-swing/sessions:
+ *   post:
+ *     summary: Create a new Mood Swing session
+ *     tags: [Mood Swing]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the session
+ *     responses:
+ *       200:
+ *         description: The session was successfully created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MoodSession'
+ *       400:
+ *         description: Missing required fields
+ */
 app.post('/api/mood-swing/sessions', (req, res) => {
     const { name } = req.body;
     if (!name) {
@@ -276,6 +616,43 @@ app.post('/api/mood-swing/sessions', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /api/mood-swing/sessions/join:
+ *   post:
+ *     summary: Join an existing Mood Swing session using a pin code
+ *     tags: [Mood Swing]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - pinCode
+ *             properties:
+ *               pinCode:
+ *                 type: string
+ *                 description: The pin code of the session to join
+ *     responses:
+ *       200:
+ *         description: Successfully joined the session
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: The session ID
+ *                 name:
+ *                   type: string
+ *                   description: The name of the session
+ *       400:
+ *         description: Missing pin code
+ *       404:
+ *         description: Session not found
+ */
 app.post('/api/mood-swing/sessions/join', (req, res) => {
     const { pinCode } = req.body;
     if (!pinCode) {
@@ -293,6 +670,33 @@ app.post('/api/mood-swing/sessions/join', (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /api/mood-swing/sessions/{id}/votes:
+ *   post:
+ *     summary: Submit a vote for a Mood Swing session
+ *     tags: [Mood Swing]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The session ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MoodVote'
+ *     responses:
+ *       200:
+ *         description: Vote successfully submitted
+ *       400:
+ *         description: Missing required fields or invalid level
+ *       404:
+ *         description: Session not found
+ */
 app.post('/api/mood-swing/sessions/:id/votes', (req, res) => {
     const { id } = req.params;
     const { userId, level } = req.body;
@@ -319,6 +723,31 @@ app.post('/api/mood-swing/sessions/:id/votes', (req, res) => {
     res.status(200).send();
 });
 
+/**
+ * @swagger
+ * /api/mood-swing/sessions/{id}/results:
+ *   get:
+ *     summary: Get the results of a Mood Swing session
+ *     tags: [Mood Swing]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The session ID
+ *     responses:
+ *       200:
+ *         description: Session results retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MoodSessionResults'
+ *       400:
+ *         description: Missing session ID
+ *       404:
+ *         description: Session not found
+ */
 app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
     const { id } = req.params;
 
