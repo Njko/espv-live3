@@ -458,6 +458,13 @@ app.post('/api/sessions/:id/votes', (req, res) => {
  *           type: string
  *         required: true
  *         description: The session ID
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [json, csv]
+ *         required: false
+ *         description: Response format (default is json)
  *     responses:
  *       200:
  *         description: Session results retrieved successfully
@@ -465,6 +472,10 @@ app.post('/api/sessions/:id/votes', (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/SessionResults'
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       400:
  *         description: Missing session ID
  *       404:
@@ -472,6 +483,7 @@ app.post('/api/sessions/:id/votes', (req, res) => {
  */
 app.get('/api/sessions/:id/results', (req, res) => {
     const { id } = req.params;
+    const format = req.query.format || 'json';
 
     if (!id) {
         return res.status(400).json({ error: 'Missing session ID' });
@@ -487,6 +499,30 @@ app.get('/api/sessions/:id/results', (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
     }
 
+    if (format === 'csv') {
+        // Calculate total participants
+        const totalParticipants = Object.values(results).reduce((sum, count) => sum + count, 0);
+
+        // Format current date as DD/MM/YYYY and time as HH:mm
+        const today = new Date();
+        const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+        const formattedTime = `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`;
+
+        // Generate CSV content
+        let csvContent = 'Session Title,Date,Time,Total Participants\n';
+        csvContent += `${session.name},${formattedDate},${formattedTime},${totalParticipants}\n\n`;
+        csvContent += 'Profile,Count\n';
+        Object.entries(results).forEach(([profile, count]) => {
+            csvContent += `${profile},${count}\n`;
+        });
+
+        // Set headers for CSV download
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="esvp_session_${session.name.replace(/[^a-z0-9]/gi, '_')}_${formattedDate.replace(/\//g, '-')}_${formattedTime.replace(/:/g, '-')}.csv"`);
+        return res.send(csvContent);
+    }
+
+    // Default JSON response
     res.json({
         id: session.id,
         name: session.name,
@@ -736,6 +772,13 @@ app.post('/api/mood-swing/sessions/:id/votes', (req, res) => {
  *           type: string
  *         required: true
  *         description: The session ID
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [json, csv]
+ *         required: false
+ *         description: Response format (default is json)
  *     responses:
  *       200:
  *         description: Session results retrieved successfully
@@ -743,6 +786,10 @@ app.post('/api/mood-swing/sessions/:id/votes', (req, res) => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/MoodSessionResults'
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       400:
  *         description: Missing session ID
  *       404:
@@ -750,6 +797,7 @@ app.post('/api/mood-swing/sessions/:id/votes', (req, res) => {
  */
 app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
     const { id } = req.params;
+    const format = req.query.format || 'json';
 
     if (!id) {
         return res.status(400).json({ error: 'Missing session ID' });
@@ -765,6 +813,31 @@ app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
     }
 
+    if (format === 'csv') {
+        // Calculate total participants
+        const totalParticipants = Object.values(results).reduce((sum, count) => sum + count, 0);
+
+        // Format current date as DD/MM/YYYY and time as HH:mm
+        const today = new Date();
+        const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+        const formattedTime = `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`;
+
+        // Generate CSV content
+        let csvContent = 'Session Title,Date,Time,Total Participants\n';
+        csvContent += `${session.name},${formattedDate},${formattedTime},${totalParticipants}\n\n`;
+        csvContent += 'Mood Level,Count\n';
+        // Sort by mood level (1-10)
+        Object.keys(results).sort((a, b) => parseInt(a) - parseInt(b)).forEach(level => {
+            csvContent += `${level},${results[level]}\n`;
+        });
+
+        // Set headers for CSV download
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="mood_swing_session_${session.name.replace(/[^a-z0-9]/gi, '_')}_${formattedDate.replace(/\//g, '-')}_${formattedTime.replace(/:/g, '-')}.csv"`);
+        return res.send(csvContent);
+    }
+
+    // Default JSON response
     res.json({
         id: session.id,
         name: session.name,
