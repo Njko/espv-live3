@@ -777,6 +777,47 @@ app.get('/json/kotlinx-serialization', (req, res) => {
     res.json({ hello: 'world' });
 });
 
+/**
+ * @swagger
+ * /api/translations/{lang}:
+ *   get:
+ *     summary: Get translation files (en.json or fr.json)
+ *     tags: [Translations]
+ *     parameters:
+ *       - in: path
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, fr]
+ *         required: true
+ *         description: Language code (en or fr)
+ *     responses:
+ *       200:
+ *         description: Translation file retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       404:
+ *         description: Translation file not found
+ */
+app.get('/api/translations/:lang', (req, res) => {
+    const { lang } = req.params;
+
+    if (lang !== 'en' && lang !== 'fr') {
+        return res.status(404).json({ error: 'Translation file not found' });
+    }
+
+    const filePath = path.join(__dirname, `src/main/resources/static/i18n/${lang}.json`);
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'Translation file not found' });
+    }
+
+    res.sendFile(filePath);
+});
+
 // Route for ESVP Live application
 app.get('/esvp-live', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/main/resources/static/esvp-live.html'));
