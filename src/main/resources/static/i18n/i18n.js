@@ -21,16 +21,16 @@ const elementsToUpdate = [];
 async function initI18n() {
     // Detect browser language
     const browserLang = navigator.language.split('-')[0];
-    
+
     // Set initial language (browser language if supported, otherwise default)
     let initialLang = AVAILABLE_LANGUAGES.includes(browserLang) ? browserLang : DEFAULT_LANGUAGE;
-    
+
     // Check if user has a language preference stored
     const storedLang = localStorage.getItem('language');
     if (storedLang && AVAILABLE_LANGUAGES.includes(storedLang)) {
         initialLang = storedLang;
     }
-    
+
     // Load translations for all languages
     await Promise.all(AVAILABLE_LANGUAGES.map(async (lang) => {
         try {
@@ -44,10 +44,10 @@ async function initI18n() {
             }
         }
     }));
-    
+
     // Set the language
     await setLanguage(initialLang);
-    
+
     // Add language switcher to the page
     addLanguageSwitcher();
 }
@@ -62,21 +62,24 @@ async function setLanguage(lang) {
         console.error(`Language ${lang} is not supported`);
         return;
     }
-    
+
     // Update current language
     currentLanguage = lang;
-    
+
     // Store language preference
     localStorage.setItem('language', lang);
-    
+
     // Update html lang attribute
     document.documentElement.lang = lang;
-    
+
     // Update all registered elements
     updateAllElements();
-    
+
     // Update all data-i18n elements
     translateDataI18nElements();
+
+    // Update language switcher buttons
+    updateLanguageSwitcherButtons();
 }
 
 /**
@@ -88,15 +91,15 @@ async function setLanguage(lang) {
 function t(key, params = {}) {
     // Split the key into parts (e.g., 'general.backToHome' -> ['general', 'backToHome'])
     const parts = key.split('.');
-    
+
     // Get the translation object for the current language
     let translation = translations[currentLanguage];
-    
+
     // If translation for current language is not available, fall back to default
     if (!translation) {
         translation = translations[DEFAULT_LANGUAGE];
     }
-    
+
     // Navigate through the translation object
     for (const part of parts) {
         if (translation && translation[part] !== undefined) {
@@ -106,18 +109,18 @@ function t(key, params = {}) {
             return key;
         }
     }
-    
+
     // If translation is not a string, return the key
     if (typeof translation !== 'string') {
         return key;
     }
-    
+
     // Replace parameters in the translation string
     let result = translation;
     for (const [param, value] of Object.entries(params)) {
         result = result.replace(new RegExp(`{{${param}}}`, 'g'), value);
     }
-    
+
     return result;
 }
 
@@ -130,7 +133,7 @@ function t(key, params = {}) {
  */
 function registerElement(element, key, attribute = 'textContent', params = {}) {
     elementsToUpdate.push({ element, key, attribute, params });
-    
+
     // Initial update
     updateElement({ element, key, attribute, params });
 }
@@ -141,10 +144,10 @@ function registerElement(element, key, attribute = 'textContent', params = {}) {
  */
 function updateElement(elementInfo) {
     const { element, key, attribute, params } = elementInfo;
-    
+
     // Get the translated string
     const translatedText = t(key, params);
-    
+
     // Update the element
     if (attribute === 'textContent') {
         element.textContent = translatedText;
@@ -167,14 +170,14 @@ function updateAllElements() {
  */
 function translateDataI18nElements() {
     const elements = document.querySelectorAll('[data-i18n]');
-    
+
     elements.forEach(element => {
         const key = element.getAttribute('data-i18n');
         const attribute = element.getAttribute('data-i18n-attr') || 'textContent';
-        
+
         // Get the translated string
         const translatedText = t(key);
-        
+
         // Update the element
         if (attribute === 'textContent') {
             element.textContent = translatedText;
@@ -193,24 +196,48 @@ function addLanguageSwitcher() {
     // Create language switcher container
     const container = document.createElement('div');
     container.className = 'language-switcher fixed top-4 right-4 bg-white p-2 rounded-lg shadow-md z-50';
-    
+
     // Create language options
     AVAILABLE_LANGUAGES.forEach(lang => {
         const button = document.createElement('button');
         button.textContent = lang.toUpperCase();
         button.className = 'px-2 py-1 mx-1 rounded hover:bg-gray-200 focus:outline-none';
         button.addEventListener('click', () => setLanguage(lang));
-        
+
         // Highlight current language
         if (lang === currentLanguage) {
             button.classList.add('font-bold', 'bg-gray-200');
         }
-        
+
         container.appendChild(button);
     });
-    
+
     // Add to the page
     document.body.appendChild(container);
+}
+
+/**
+ * Update the language switcher buttons to reflect the current language
+ */
+function updateLanguageSwitcherButtons() {
+    const languageSwitcher = document.querySelector('.language-switcher');
+    if (!languageSwitcher) return;
+
+    // Get all language buttons
+    const buttons = languageSwitcher.querySelectorAll('button');
+
+    // Update button styles based on current language
+    buttons.forEach(button => {
+        const buttonLang = button.textContent.toLowerCase();
+
+        // Remove existing highlight classes
+        button.classList.remove('font-bold', 'bg-gray-200');
+
+        // Add highlight classes to current language button
+        if (buttonLang === currentLanguage) {
+            button.classList.add('font-bold', 'bg-gray-200');
+        }
+    });
 }
 
 // Export functions for global use

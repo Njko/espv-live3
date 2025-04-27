@@ -3,49 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mood Swing</title>
+    <title data-i18n="moodSwing.pageTitle">Mood Swing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/i18n/i18n.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
-            <a href="/" class="text-blue-500 hover:text-blue-700">← Back to Home</a>
-            <h1 class="text-3xl font-bold text-center flex-grow">Mood Swing</h1>
+            <a href="/" class="text-blue-500 hover:text-blue-700" data-i18n="general.backToHome">← Back to Home</a>
+            <h1 class="text-3xl font-bold text-center flex-grow" data-i18n="moodSwing.mainTitle">Mood Swing</h1>
             <div class="w-24"></div><!-- Spacer for balance -->
         </div>
 
         <div id="createSessionSection" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Create a New Session</h2>
+            <h2 class="text-xl font-semibold mb-4" data-i18n="moodSwing.createSessionTitle">Create a New Session</h2>
             <div class="flex">
-                <input type="text" id="sessionName" placeholder="Session Name"
+                <input type="text" id="sessionName" data-i18n-attr="placeholder" data-i18n="moodSwing.sessionNamePlaceholder" placeholder="Session Name"
                        class="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <button id="createSessionBtn" 
-                        class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" data-i18n="general.create">
                     Create
                 </button>
             </div>
             <div id="createSessionResult" class="mt-4 hidden">
-                <p>Session created! Share this pin code with participants:</p>
+                <p data-i18n="general.sessionCreated">Session created! Share this pin code with participants:</p>
                 <p id="pinCode" class="text-xl font-bold text-center my-2"></p>
             </div>
         </div>
 
         <div id="joinSessionSection" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Join a Session</h2>
+            <h2 class="text-xl font-semibold mb-4" data-i18n="moodSwing.joinSessionTitle">Join a Session</h2>
             <div class="flex">
-                <input type="text" id="pinCodeInput" placeholder="Pin Code (e.g., ABC-123)" 
+                <input type="text" id="pinCodeInput" data-i18n-attr="placeholder" data-i18n="moodSwing.pinCodePlaceholder" placeholder="Pin Code (e.g., ABC-123)" 
                        class="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <button id="joinSessionBtn" 
-                        class="bg-green-500 text-white px-4 py-2 rounded-r-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        class="bg-green-500 text-white px-4 py-2 rounded-r-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500" data-i18n="general.join">
                     Join
                 </button>
             </div>
         </div>
 
         <div id="votingSection" class="bg-white p-6 rounded-lg shadow-md mb-6 hidden">
-            <h2 class="text-xl font-semibold mb-4">Vote in Session: <span id="sessionNameDisplay"></span></h2>
-            <p class="mb-2">Session PIN: <span id="votingPinCode" class="font-bold"></span></p>
-            <p class="mb-4">How do you feel about this session? (1 = Not good at all, 10 = Impressed)</p>
+            <h2 class="text-xl font-semibold mb-4"><span data-i18n="moodSwing.voteInSession">Vote in Session:</span> <span id="sessionNameDisplay"></span></h2>
+            <p class="mb-2"><span data-i18n="moodSwing.sessionPin">Session PIN:</span> <span id="votingPinCode" class="font-bold"></span></p>
+            <p class="mb-4" data-i18n="moodSwing.howDoYouFeel">How do you feel about this session? (1 = Not good at all, 10 = Impressed)</p>
 
             <div class="grid grid-cols-5 md:grid-cols-10 gap-2 mb-4">
                 <button data-level="1" class="mood-btn bg-red-500 text-white p-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
@@ -81,88 +82,88 @@
             </div>
 
             <div class="mt-4">
-                <p class="text-sm text-gray-600">1 = Not good at all, 10 = Impressed</p>
+                <p class="text-sm text-gray-600" data-i18n="moodSwing.moodLegend">1 = Not good at all, 10 = Impressed</p>
             </div>
 
             <div class="flex justify-between mt-4">
-                <button id="showResultsBtn" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 creator-only">
+                <button id="showResultsBtn" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 creator-only" data-i18n="general.showResults">
                     Show Results
                 </button>
-                <button id="backToSelectionBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <button id="backToSelectionBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500" data-i18n="general.backToSelection">
                     Back to Selection
                 </button>
             </div>
         </div>
 
         <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
-            <h2 class="text-xl font-semibold mb-4">Results for: <span id="resultSessionName"></span></h2>
-            <p class="mb-2">Session PIN: <span id="resultsPinCode" class="font-bold"></span></p>
+            <h2 class="text-xl font-semibold mb-4"><span data-i18n="moodSwing.resultsFor">Results for:</span> <span id="resultSessionName"></span></h2>
+            <p class="mb-2"><span data-i18n="moodSwing.sessionPin">Session PIN:</span> <span id="resultsPinCode" class="font-bold"></span></p>
             <div class="space-y-4">
                 <div class="flex items-center">
-                    <div class="w-24">Level 1:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 1:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level1Bar" class="bg-red-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level1Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 2:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 2:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level2Bar" class="bg-red-400 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level2Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 3:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 3:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level3Bar" class="bg-red-300 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level3Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 4:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 4:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level4Bar" class="bg-orange-400 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level4Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 5:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 5:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level5Bar" class="bg-orange-300 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level5Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 6:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 6:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level6Bar" class="bg-yellow-400 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level6Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 7:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 7:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level7Bar" class="bg-yellow-300 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level7Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 8:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 8:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level8Bar" class="bg-green-400 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level8Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 9:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 9:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level9Bar" class="bg-green-300 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level9Count" class="ml-2 w-10 text-right">0</div>
                 </div>
                 <div class="flex items-center">
-                    <div class="w-24">Level 10:</div>
+                    <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 10:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
                         <div id="level10Bar" class="bg-green-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
@@ -170,10 +171,10 @@
                 </div>
             </div>
             <div class="flex justify-between mt-4">
-                <button id="refreshResultsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="refreshResultsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" data-i18n="general.refreshResults">
                     Refresh Results
                 </button>
-                <button id="backToSelectionBtn2" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <button id="backToSelectionBtn2" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500" data-i18n="general.backToSelection">
                     Back to Selection
                 </button>
             </div>
@@ -224,7 +225,7 @@
         async function createSession() {
             const sessionName = document.getElementById('sessionName').value.trim();
             if (!sessionName) {
-                alert('Please enter a session name');
+                alert(i18n.t('moodSwing.alerts.enterSessionName'));
                 return;
             }
 
@@ -263,11 +264,11 @@
                     // Update UI based on role
                     updateUIBasedOnRole();
                 } else {
-                    alert('Failed to create session');
+                    alert(i18n.t('moodSwing.alerts.failedCreateSession'));
                 }
             } catch (error) {
                 console.error('Error creating session:', error);
-                alert('Error creating session');
+                alert(i18n.t('moodSwing.alerts.errorCreateSession'));
             }
         }
 
@@ -275,7 +276,7 @@
         async function joinSession() {
             const pinCode = document.getElementById('pinCodeInput').value.trim();
             if (!pinCode) {
-                alert('Please enter a pin code');
+                alert(i18n.t('moodSwing.alerts.enterPinCode'));
                 return;
             }
 
@@ -312,11 +313,11 @@
                     // Update UI based on role
                     updateUIBasedOnRole();
                 } else {
-                    alert('Session not found');
+                    alert(i18n.t('moodSwing.alerts.sessionNotFound'));
                 }
             } catch (error) {
                 console.error('Error joining session:', error);
-                alert('Error joining session');
+                alert(i18n.t('moodSwing.alerts.errorJoiningSession'));
             }
         }
 
@@ -352,7 +353,7 @@
         // Vote in the current session
         async function vote(level) {
             if (!currentSession) {
-                alert('No active session');
+                alert(i18n.t('moodSwing.alerts.noActiveSession'));
                 return;
             }
 
@@ -380,18 +381,18 @@
                         showResults();
                     }
                 } else {
-                    alert('Failed to record vote');
+                    alert(i18n.t('moodSwing.alerts.failedRecordVote'));
                 }
             } catch (error) {
                 console.error('Error voting:', error);
-                alert('Error recording vote');
+                alert(i18n.t('moodSwing.alerts.errorRecordingVote'));
             }
         }
 
         // Show results for the current session
         async function showResults() {
             if (!currentSession) {
-                alert('No active session');
+                alert(i18n.t('moodSwing.alerts.noActiveSession'));
                 return;
             }
 
@@ -421,11 +422,11 @@
                     document.getElementById('votingSection').classList.add('hidden');
                     document.getElementById('resultsSection').classList.remove('hidden');
                 } else {
-                    alert('Failed to get results');
+                    alert(i18n.t('moodSwing.alerts.failedGetResults'));
                 }
             } catch (error) {
                 console.error('Error getting results:', error);
-                alert('Error getting results');
+                alert(i18n.t('moodSwing.alerts.errorGettingResults'));
             }
         }
 

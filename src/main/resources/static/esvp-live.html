@@ -362,11 +362,11 @@
                     document.getElementById('votingSection').classList.add('hidden');
                     document.getElementById('resultsSection').classList.remove('hidden');
                 } else {
-                    alert('Failed to get results');
+                    alert(i18n.t('esvp.alerts.failedGetResults'));
                 }
             } catch (error) {
                 console.error('Error getting results:', error);
-                alert('Error getting results');
+                alert(i18n.t('esvp.alerts.errorGettingResults'));
             }
         }
 
