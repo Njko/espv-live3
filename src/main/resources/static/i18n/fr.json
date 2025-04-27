@@ -6,7 +6,8 @@
     "backToSelection": "Retour à la sélection",
     "refreshResults": "Actualiser les résultats",
     "showResults": "Afficher les résultats",
-    "sessionCreated": "Session créée ! Partagez ce code PIN avec les participants :"
+    "sessionCreated": "Session créée ! Partagez ce code PIN avec les participants :",
+    "autoRefresh": "Rafraîchissement automatique des résultats"
   },
   "home": {
     "pageTitle": "Outils de rétrospective Agile - ESVP Live & Mood Swing",

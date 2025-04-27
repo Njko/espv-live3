@@ -170,18 +170,28 @@
                     <div id="level10Count" class="ml-2 w-10 text-right">0</div>
                 </div>
             </div>
-            <div class="flex justify-between mt-4">
-                <div>
-                    <button id="refreshResultsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2" data-i18n="general.refreshResults">
-                        Refresh Results
-                    </button>
-                    <button id="exportCsvBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 creator-only">
-                        Export to CSV
+            <div class="flex flex-col space-y-4 mt-4">
+                <div class="flex items-center">
+                    <span class="mr-2" data-i18n="general.autoRefresh">Auto-refresh:</span>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="autoRefreshToggle" class="sr-only peer" checked>
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                    <span id="refreshCountdown" class="ml-4 text-sm text-gray-600">10s</span>
+                </div>
+                <div class="flex justify-between">
+                    <div>
+                        <button id="refreshResultsBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2" data-i18n="general.refreshResults">
+                            Refresh Results
+                        </button>
+                        <button id="exportCsvBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 creator-only">
+                            Export to CSV
+                        </button>
+                    </div>
+                    <button id="backToSelectionBtn2" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500" data-i18n="general.backToSelection">
+                        Back to Selection
                     </button>
                 </div>
-                <button id="backToSelectionBtn2" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500" data-i18n="general.backToSelection">
-                    Back to Selection
-                </button>
             </div>
         </div>
     </div>
@@ -191,6 +201,9 @@
         let currentSession = null;
         let userId = null;
         let isSessionCreator = false;
+        let refreshInterval = null;
+        let countdownTimer = null;
+        let secondsUntilRefresh = 10;
 
         // Generate a random user ID
         function generateUserId() {
@@ -216,7 +229,19 @@
             document.getElementById('showResultsBtn').addEventListener('click', showResults);
 
             // Refresh results
-            document.getElementById('refreshResultsBtn').addEventListener('click', showResults);
+            document.getElementById('refreshResultsBtn').addEventListener('click', () => {
+                showResults();
+                resetRefreshTimer();
+            });
+
+            // Auto-refresh toggle
+            document.getElementById('autoRefreshToggle').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            });
 
             // Export to CSV
             document.getElementById('exportCsvBtn').addEventListener('click', exportResultsToCsv);
@@ -335,6 +360,9 @@
             currentSession = null;
             isSessionCreator = false;
 
+            // Stop auto-refresh if active
+            stopAutoRefresh();
+
             // Hide all sections except create and join
             document.getElementById('votingSection').classList.add('hidden');
             document.getElementById('resultsSection').classList.add('hidden');
@@ -343,6 +371,60 @@
             // Show create and join sections
             document.getElementById('createSessionSection').classList.remove('hidden');
             document.getElementById('joinSessionSection').classList.remove('hidden');
+        }
+
+        // Start auto-refresh
+        function startAutoRefresh() {
+            // Clear any existing intervals
+            stopAutoRefresh();
+
+            // Reset the countdown
+            secondsUntilRefresh = 10;
+            updateCountdown();
+
+            // Start the countdown timer
+            countdownTimer = setInterval(updateCountdown, 1000);
+
+            // Start the refresh interval
+            refreshInterval = setInterval(() => {
+                showResults();
+                secondsUntilRefresh = 10;
+                updateCountdown();
+            }, 10000);
+        }
+
+        // Stop auto-refresh
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+
+            // Reset the countdown display
+            document.getElementById('refreshCountdown').textContent = '';
+        }
+
+        // Reset refresh timer
+        function resetRefreshTimer() {
+            if (document.getElementById('autoRefreshToggle').checked) {
+                stopAutoRefresh();
+                startAutoRefresh();
+            }
+        }
+
+        // Update countdown display
+        function updateCountdown() {
+            if (secondsUntilRefresh > 0) {
+                secondsUntilRefresh--;
+                document.getElementById('refreshCountdown').textContent = secondsUntilRefresh + 's';
+            } else {
+                secondsUntilRefresh = 10;
+            }
         }
 
         // Update UI elements based on user role
@@ -429,6 +511,11 @@
                     // Show results section
                     document.getElementById('votingSection').classList.add('hidden');
                     document.getElementById('resultsSection').classList.remove('hidden');
+
+                    // Start auto-refresh if toggle is checked
+                    if (document.getElementById('autoRefreshToggle').checked) {
+                        startAutoRefresh();
+                    }
                 } else {
                     alert(i18n.t('moodSwing.alerts.failedGetResults'));
                 }
