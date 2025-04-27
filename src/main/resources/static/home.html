@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agile Retrospective Tools - ESVP Live & Mood Swing</title>
+    <title data-i18n="home.pageTitle">Agile Retrospective Tools - ESVP Live & Mood Swing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/i18n/i18n.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8">Agile Retrospective Tools</h1>
+        <h1 class="text-3xl font-bold text-center mb-8" data-i18n="home.mainTitle">Agile Retrospective Tools</h1>
         <div class="text-center mb-8">
-            <p class="text-lg">Discover powerful tools to enhance your retrospectives and team meetings</p>
+            <p class="text-lg" data-i18n="home.subtitle">Discover powerful tools to enhance your retrospectives and team meetings</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -22,26 +23,26 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-blue-700">ESVP Live</h2>
+                        <h2 class="text-2xl font-bold text-blue-700" data-i18n="home.esvpTitle">ESVP Live</h2>
                     </div>
                     <p class="mb-4">
-                        <strong>ESVP Live</strong> is an interactive tool that helps facilitators understand participants' attitudes toward a meeting or workshop in real-time.
+                        <strong data-i18n="home.esvpTitle">ESVP Live</strong> <span data-i18n="home.esvpDescription">is an interactive tool that helps facilitators understand participants' attitudes toward a meeting or workshop in real-time.</span>
                     </p>
-                    <p class="mb-4">
+                    <p class="mb-4" data-i18n="home.esvpParticipants">
                         Participants anonymously identify themselves as one of the following:
                     </p>
                     <ul class="list-disc pl-6 mb-4">
-                        <li><strong>Explorer</strong> - Excited to learn and discover new things</li>
-                        <li><strong>Shopper</strong> - Looking for specific value to take away</li>
-                        <li><strong>Vacationer</strong> - Happy to be away from regular work</li>
-                        <li><strong>Prisoner</strong> - Forced to attend, would rather be elsewhere</li>
+                        <li><strong data-i18n="home.explorer">Explorer</strong> - <span data-i18n="home.explorerDesc">Excited to learn and discover new things</span></li>
+                        <li><strong data-i18n="home.shopper">Shopper</strong> - <span data-i18n="home.shopperDesc">Looking for specific value to take away</span></li>
+                        <li><strong data-i18n="home.vacationer">Vacationer</strong> - <span data-i18n="home.vacationerDesc">Happy to be away from regular work</span></li>
+                        <li><strong data-i18n="home.prisoner">Prisoner</strong> - <span data-i18n="home.prisonerDesc">Forced to attend, would rather be elsewhere</span></li>
                     </ul>
-                    <p class="mb-6">
+                    <p class="mb-6" data-i18n="home.esvpFeedback">
                         This tool provides immediate visual feedback, allowing facilitators to adjust their approach based on the group's mindset. Perfect for starting retrospectives or workshops to gauge engagement levels.
                     </p>
                 </div>
                 <div class="mt-auto">
-                    <a href="/esvp-live" class="block w-full bg-blue-500 text-white text-center px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <a href="/esvp-live" class="block w-full bg-blue-500 text-white text-center px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" data-i18n="home.launchEsvp">
                         Launch ESVP Live
                     </a>
                 </div>
@@ -55,25 +56,25 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-green-700">Mood Swing</h2>
+                        <h2 class="text-2xl font-bold text-green-700" data-i18n="home.moodSwingTitle">Mood Swing</h2>
                     </div>
                     <p class="mb-4">
-                        <strong>Mood Swing</strong> is a dynamic tool that tracks participants' moods throughout a session, meeting, or over longer periods.
+                        <strong data-i18n="home.moodSwingTitle">Mood Swing</strong> <span data-i18n="home.moodSwingDescription">is a dynamic tool that tracks participants' moods throughout a session, meeting, or over longer periods.</span>
                     </p>
-                    <p class="mb-4">
+                    <p class="mb-4" data-i18n="home.moodSwingParticipants">
                         Participants rate their mood on a scale from 1 to 10:
                     </p>
                     <ul class="list-disc pl-6 mb-4">
-                        <li><strong>1</strong> - Not good at all (frustrated, disengaged)</li>
-                        <li><strong>5</strong> - Neutral</li>
-                        <li><strong>10</strong> - Extremely positive (impressed, energized)</li>
+                        <li><strong>1</strong> - <span data-i18n="home.moodLevel1">Not good at all (frustrated, disengaged)</span></li>
+                        <li><strong>5</strong> - <span data-i18n="home.moodLevel5">Neutral</span></li>
+                        <li><strong>10</strong> - <span data-i18n="home.moodLevel10">Extremely positive (impressed, energized)</span></li>
                     </ul>
-                    <p class="mb-6">
+                    <p class="mb-6" data-i18n="home.moodSwingFeedback">
                         Mood Swing visualizes mood trends in real-time, helping facilitators identify when energy drops or rises. It's ideal for checking emotional temperature at different points during retrospectives or tracking team morale over time.
                     </p>
                 </div>
                 <div class="mt-auto">
-                    <a href="/mood-swing" class="block w-full bg-green-500 text-white text-center px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <a href="/mood-swing" class="block w-full bg-green-500 text-white text-center px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500" data-i18n="home.launchMoodSwing">
                         Launch Mood Swing
                     </a>
                 </div>
@@ -81,41 +82,41 @@
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4">Why Use These Tools?</h2>
+            <h2 class="text-xl font-semibold mb-4" data-i18n="home.whyUseTitle">Why Use These Tools?</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h3 class="font-bold mb-2">Increase Engagement</h3>
-                    <p>Interactive visualizations make retrospectives more engaging and encourage honest feedback from all participants.</p>
+                    <h3 class="font-bold mb-2" data-i18n="home.increaseEngagementTitle">Increase Engagement</h3>
+                    <p data-i18n="home.increaseEngagementDesc">Interactive visualizations make retrospectives more engaging and encourage honest feedback from all participants.</p>
                 </div>
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h3 class="font-bold mb-2">Data-Driven Facilitation</h3>
-                    <p>Make informed decisions about how to adjust your facilitation approach based on real-time feedback.</p>
+                    <h3 class="font-bold mb-2" data-i18n="home.dataFacilitationTitle">Data-Driven Facilitation</h3>
+                    <p data-i18n="home.dataFacilitationDesc">Make informed decisions about how to adjust your facilitation approach based on real-time feedback.</p>
                 </div>
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h3 class="font-bold mb-2">Track Progress</h3>
-                    <p>Monitor how team sentiment evolves over time to measure the effectiveness of your improvement initiatives.</p>
+                    <h3 class="font-bold mb-2" data-i18n="home.trackProgressTitle">Track Progress</h3>
+                    <p data-i18n="home.trackProgressDesc">Monitor how team sentiment evolves over time to measure the effectiveness of your improvement initiatives.</p>
                 </div>
             </div>
         </div>
 
         <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4">Resources & Information</h2>
+            <h2 class="text-xl font-semibold mb-4" data-i18n="home.resourcesTitle">Resources & Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h3 class="font-bold mb-2">API Documentation</h3>
-                    <p class="mb-2">Access the Swagger documentation for our API:</p>
-                    <a href="/api-docs" class="text-blue-600 hover:text-blue-800 underline">API Documentation</a>
+                    <h3 class="font-bold mb-2" data-i18n="home.apiDocTitle">API Documentation</h3>
+                    <p class="mb-2" data-i18n="home.apiDocDesc">Access the Swagger documentation for our API:</p>
+                    <a href="/api-docs" class="text-blue-600 hover:text-blue-800 underline" data-i18n="home.apiDocTitle">API Documentation</a>
                 </div>
                 <div class="border border-gray-200 rounded-lg p-4">
-                    <h3 class="font-bold mb-2">Source Code</h3>
-                    <p class="mb-2">View or fork the source code on GitHub:</p>
+                    <h3 class="font-bold mb-2" data-i18n="home.sourceCodeTitle">Source Code</h3>
+                    <p class="mb-2" data-i18n="home.sourceCodeDesc">View or fork the source code on GitHub:</p>
                     <a href="https://github.com/Njko/espv-live3" target="_blank" class="text-blue-600 hover:text-blue-800 underline">GitHub Repository</a>
                 </div>
             </div>
             <div class="border border-gray-200 rounded-lg p-4">
-                <h3 class="font-bold mb-2">Important Notice</h3>
-                <p class="mb-2">This application does not store any information in a database. All data is kept in memory only and will be lost when the server restarts.</p>
-                <p>Please note that the availability of this site is not guaranteed as it is hosted with personal means. If you need a more reliable service, you are invited to deploy the application on your own hosting using the source code available via the GitHub link above.</p>
+                <h3 class="font-bold mb-2" data-i18n="home.importantNoticeTitle">Important Notice</h3>
+                <p class="mb-2" data-i18n="home.importantNoticeDesc1">This application does not store any information in a database. All data is kept in memory only and will be lost when the server restarts.</p>
+                <p data-i18n="home.importantNoticeDesc2">Please note that the availability of this site is not guaranteed as it is hosted with personal means. If you need a more reliable service, you are invited to deploy the application on your own hosting using the source code available via the GitHub link above.</p>
             </div>
         </div>
     </div>
