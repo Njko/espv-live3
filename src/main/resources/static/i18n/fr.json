@@ -96,6 +96,12 @@
     "moodLegend": "1 = Pas bon du tout, 10 = Impressionné",
     "resultsFor": "Résultats pour :",
     "levelLabel": "Niveau",
+    "currentMoodAverage": "Moyenne d'humeur actuelle",
+    "currentVoteDistribution": "Distribution actuelle des votes",
+    "moodEvolutionOverTime": "Évolution de l'humeur dans le temps",
+    "averageMood": "Moyenne d'humeur",
+    "totalVotes": "Votes totaux",
+    "noHistoricalData": "Aucune donnée historique disponible",
     "alerts": {
       "enterSessionName": "Veuillez entrer un nom de session",
       "failedCreateSession": "Échec de la création de la session",

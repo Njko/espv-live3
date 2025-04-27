@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="moodSwing.pageTitle">Mood Swing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/i18n/i18n.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -98,7 +99,24 @@
         <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
             <h2 class="text-xl font-semibold mb-4"><span data-i18n="moodSwing.resultsFor">Results for:</span> <span id="resultSessionName"></span></h2>
             <p class="mb-2"><span data-i18n="moodSwing.sessionPin">Session PIN:</span> <span id="resultsPinCode" class="font-bold"></span></p>
-            <div class="space-y-4">
+
+            <!-- Current Mood Average -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2" data-i18n="moodSwing.currentMoodAverage">Current Mood Average</h3>
+                <div class="flex items-center">
+                    <div class="w-24">Average:</div>
+                    <div class="flex-grow bg-gray-200 rounded-full h-8">
+                        <div id="averageMoodBar" class="bg-blue-500 h-8 rounded-full flex items-center justify-center text-white font-bold" style="width: 0%">0</div>
+                    </div>
+                    <div id="averageMoodValue" class="ml-2 w-16 text-right font-bold">0</div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600">
+                    Total votes: <span id="totalVotesCount">0</span>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold mb-2" data-i18n="moodSwing.currentVoteDistribution">Current Vote Distribution</h3>
+            <div class="space-y-4 mb-6">
                 <div class="flex items-center">
                     <div class="w-24"><span data-i18n="moodSwing.levelLabel">Level</span> 1:</div>
                     <div class="flex-grow bg-gray-200 rounded-full h-5">
@@ -168,6 +186,14 @@
                         <div id="level10Bar" class="bg-green-500 h-5 rounded-full" style="width: 0"></div>
                     </div>
                     <div id="level10Count" class="ml-2 w-10 text-right">0</div>
+                </div>
+            </div>
+
+            <!-- Historical Data Section -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2" data-i18n="moodSwing.moodEvolutionOverTime">Mood Evolution Over Time</h3>
+                <div class="overflow-x-auto">
+                    <canvas id="moodEvolutionChart" width="400" height="200"></canvas>
                 </div>
             </div>
             <div class="flex flex-col space-y-4 mt-4">
@@ -492,21 +518,27 @@
                 if (response.ok) {
                     const data = await response.json();
 
-                    // Calculate total votes
-                    const totalVotes = Object.values(data.results).reduce((sum, count) => sum + count, 0);
-
-                    // Update result bars and counts
+                    // Update session name and PIN code
                     document.getElementById('resultSessionName').textContent = data.name;
-
-                    // Ensure PIN code is displayed
                     if (currentSession.pinCode) {
                         document.getElementById('resultsPinCode').textContent = currentSession.pinCode;
                     }
 
+                    // Update current results
+                    const currentResults = data.current;
+                    const totalVotes = currentResults.totalVotes;
+                    const averageMood = currentResults.averageMood;
+
+                    // Update average mood display
+                    updateAverageMoodDisplay(averageMood, totalVotes);
+
                     // Update all level bars
                     for (let i = 1; i <= 10; i++) {
-                        updateResultBar(i, data.results[i] || 0, totalVotes);
+                        updateResultBar(i, currentResults.results[i] || 0, totalVotes);
                     }
+
+                    // Update history table
+                    updateHistoryTable(data.history);
 
                     // Show results section
                     document.getElementById('votingSection').classList.add('hidden');
@@ -523,6 +555,150 @@
                 console.error('Error getting results:', error);
                 alert(i18n.t('moodSwing.alerts.errorGettingResults'));
             }
+        }
+
+        // Update the average mood display
+        function updateAverageMoodDisplay(averageMood, totalVotes) {
+            // Update average mood value
+            document.getElementById('averageMoodValue').textContent = averageMood;
+
+            // Update average mood bar (scale 1-10 to 10-100%)
+            const percentage = Math.min(Math.max((averageMood / 10) * 100, 10), 100);
+            const moodBar = document.getElementById('averageMoodBar');
+            moodBar.style.width = `${percentage}%`;
+            moodBar.textContent = averageMood;
+
+            // Update color based on mood level
+            if (averageMood < 4) {
+                moodBar.className = "bg-red-500 h-8 rounded-full flex items-center justify-center text-white font-bold";
+            } else if (averageMood < 7) {
+                moodBar.className = "bg-yellow-400 h-8 rounded-full flex items-center justify-center text-white font-bold";
+            } else {
+                moodBar.className = "bg-green-500 h-8 rounded-full flex items-center justify-center text-white font-bold";
+            }
+
+            // Update total votes count
+            document.getElementById('totalVotesCount').textContent = totalVotes;
+        }
+
+        // Chart instance variable to track and destroy previous chart
+        let moodChart = null;
+
+        // Update the history chart
+        function updateHistoryTable(history) {
+            // Get the canvas element
+            const canvas = document.getElementById('moodEvolutionChart');
+
+            // If there's no history data, show a message
+            if (!history || history.length === 0) {
+                // Clear any existing chart
+                if (moodChart) {
+                    moodChart.destroy();
+                    moodChart = null;
+                }
+
+                // Draw text on canvas
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#6B7280'; // Gray color
+                ctx.fillText(i18n.t('moodSwing.noHistoricalData'), canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // Sort history by timestamp (oldest first for the chart)
+            const sortedHistory = [...history].sort((a, b) => 
+                new Date(a.timestamp) - new Date(b.timestamp)
+            );
+
+            // Extract timestamps and average mood values
+            const labels = sortedHistory.map(entry => {
+                const date = new Date(entry.timestamp);
+                return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            });
+
+            const averageMoodData = sortedHistory.map(entry => entry.averageMood);
+            const totalVotesData = sortedHistory.map(entry => entry.totalVotes);
+
+            // Destroy previous chart if it exists
+            if (moodChart) {
+                moodChart.destroy();
+            }
+
+            // Create the chart
+            const ctx = canvas.getContext('2d');
+            moodChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: i18n.t('moodSwing.averageMood'),
+                            data: averageMoodData,
+                            borderColor: 'rgb(59, 130, 246)', // Blue
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: i18n.t('moodSwing.totalVotes'),
+                            data: totalVotesData,
+                            borderColor: 'rgb(107, 114, 128)', // Gray
+                            backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: i18n.t('moodSwing.averageMood')
+                            },
+                            min: 0,
+                            max: 10,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: i18n.t('moodSwing.totalVotes')
+                            },
+                            min: 0,
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y;
+                                    return `${label}: ${value}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Update a result bar

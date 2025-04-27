@@ -136,6 +136,7 @@ class MoodSessionRepository {
     constructor() {
         this.sessions = new Map();
         this.sessionsByPinCode = new Map();
+        this.sessionTimers = new Map(); // Store timers for each session
     }
 
     createSession(name) {
@@ -145,11 +146,69 @@ class MoodSessionRepository {
             id,
             name,
             pinCode,
-            votes: {}
+            votes: {},
+            history: [], // Array to store historical snapshots
+            createdAt: new Date()
         };
         this.sessions.set(id, session);
         this.sessionsByPinCode.set(pinCode, id);
+
+        // Start recording snapshots every minute
+        this.startRecordingSnapshots(id);
+
         return session;
+    }
+
+    // Record a snapshot of the current votes
+    recordSnapshot(sessionId) {
+        const session = this.sessions.get(sessionId);
+        if (!session) return null;
+
+        // Create a snapshot of current votes
+        const results = {};
+        // Initialize all levels with 0
+        for (let i = 1; i <= 10; i++) {
+            results[i] = 0;
+        }
+
+        // Count votes for each level
+        Object.values(session.votes).forEach(level => {
+            results[level]++;
+        });
+
+        // Calculate average mood if there are votes
+        const voteValues = Object.values(session.votes);
+        const averageMood = voteValues.length > 0 
+            ? voteValues.reduce((sum, level) => sum + level, 0) / voteValues.length 
+            : 0;
+
+        // Add snapshot to history
+        session.history.push({
+            timestamp: new Date(),
+            results: {...results},
+            averageMood: parseFloat(averageMood.toFixed(2)),
+            totalVotes: voteValues.length
+        });
+
+        return session;
+    }
+
+    // Start recording snapshots every minute
+    startRecordingSnapshots(sessionId) {
+        // Clear any existing timer for this session
+        if (this.sessionTimers.has(sessionId)) {
+            clearInterval(this.sessionTimers.get(sessionId));
+        }
+
+        // Take initial snapshot
+        this.recordSnapshot(sessionId);
+
+        // Set up interval to record snapshots every minute
+        const timer = setInterval(() => {
+            this.recordSnapshot(sessionId);
+        }, 60000); // 60000 ms = 1 minute
+
+        this.sessionTimers.set(sessionId, timer);
     }
 
     findSessionById(id) {
@@ -165,7 +224,18 @@ class MoodSessionRepository {
     addVote(sessionId, userId, level) {
         const session = this.sessions.get(sessionId);
         if (!session) return null;
+
+        // Store the previous vote if it exists
+        const previousVote = session.votes[userId];
+
+        // Update the vote
         session.votes[userId] = level;
+
+        // If this is a new vote or the vote has changed, take a new snapshot
+        if (previousVote === undefined || previousVote !== level) {
+            this.recordSnapshot(sessionId);
+        }
+
         return session;
     }
 
@@ -184,7 +254,28 @@ class MoodSessionRepository {
             results[level]++;
         });
 
-        return results;
+        // Calculate average mood if there are votes
+        const voteValues = Object.values(session.votes);
+        const averageMood = voteValues.length > 0 
+            ? voteValues.reduce((sum, level) => sum + level, 0) / voteValues.length 
+            : 0;
+
+        return {
+            current: {
+                results: results,
+                averageMood: parseFloat(averageMood.toFixed(2)),
+                totalVotes: voteValues.length
+            },
+            history: session.history
+        };
+    }
+
+    // Clean up timers when session is no longer needed
+    cleanupSession(id) {
+        if (this.sessionTimers.has(id)) {
+            clearInterval(this.sessionTimers.get(id));
+            this.sessionTimers.delete(id);
+        }
     }
 
     // Generate a unique pin code in the format "ABC-123" (3 letters, hyphen, 3 numbers)
@@ -814,9 +905,6 @@ app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
     }
 
     if (format === 'csv') {
-        // Calculate total participants
-        const totalParticipants = Object.values(results).reduce((sum, count) => sum + count, 0);
-
         // Format current date as DD/MM/YYYY and time as HH:mm
         const today = new Date();
         const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
@@ -824,11 +912,39 @@ app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
 
         // Generate CSV content
         let csvContent = 'Session Title,Date,Time,Total Participants\n';
-        csvContent += `${session.name},${formattedDate},${formattedTime},${totalParticipants}\n\n`;
+        csvContent += `${session.name},${formattedDate},${formattedTime},${results.current.totalVotes}\n\n`;
+
+        // Current results
+        csvContent += 'CURRENT RESULTS\n';
         csvContent += 'Mood Level,Count\n';
         // Sort by mood level (1-10)
-        Object.keys(results).sort((a, b) => parseInt(a) - parseInt(b)).forEach(level => {
-            csvContent += `${level},${results[level]}\n`;
+        Object.keys(results.current.results).sort((a, b) => parseInt(a) - parseInt(b)).forEach(level => {
+            csvContent += `${level},${results.current.results[level]}\n`;
+        });
+        csvContent += `Average Mood,${results.current.averageMood}\n\n`;
+
+        // Historical data
+        csvContent += 'HISTORICAL DATA\n';
+        csvContent += 'Timestamp,Average Mood,Total Votes';
+        // Add columns for each mood level
+        for (let i = 1; i <= 10; i++) {
+            csvContent += `,Level ${i}`;
+        }
+        csvContent += '\n';
+
+        // Add data for each snapshot
+        results.history.forEach(snapshot => {
+            const date = new Date(snapshot.timestamp);
+            const snapshotDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+            const snapshotTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+
+            csvContent += `${snapshotDate} ${snapshotTime},${snapshot.averageMood},${snapshot.totalVotes}`;
+
+            // Add count for each mood level
+            for (let i = 1; i <= 10; i++) {
+                csvContent += `,${snapshot.results[i] || 0}`;
+            }
+            csvContent += '\n';
         });
 
         // Set headers for CSV download
@@ -841,7 +957,8 @@ app.get('/api/mood-swing/sessions/:id/results', (req, res) => {
     res.json({
         id: session.id,
         name: session.name,
-        results
+        current: results.current,
+        history: results.history
     });
 });
 
